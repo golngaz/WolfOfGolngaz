@@ -1,7 +1,8 @@
 
 
 const CommandList = {
-    debug: () => require('./Debug')
+    debug: () => require('./Debug'),
+    start: () => require('./Game'),
 }
 
 module.exports = class CommandFactory {

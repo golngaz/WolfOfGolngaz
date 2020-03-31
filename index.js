@@ -18,22 +18,9 @@ bot.on('message', function (message) {
     //     message.author.send('coucou mon petit');
     // }
     //
-    // if (message.content === 'wog debug') {
-    //     let wolfChannel = message.channel.guild.channels
-    //         .filter(function(channel) {
-    //             return channel.name === 'loup-garous' && channel.type === 'text'
-    //         })
-    //         .first()
-    //
-    //     if (wolfChannel) {
-    //         message.reply('j ai trouvé le salon de loups : ' + wolfChannel.name + ', golngaz à les roles ' + wolfChannel.permissionsFor(message.author).serialize())
-    //
-    //         console.log(Command.test())
-    //         return
-    //     }
-    //
-    //     return message.reply('je n ai pas trouvé le salon')
-    // }
+    if (message.content === 'wog debug') {
+
+    }
 })
 
 
