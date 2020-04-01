@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const config = require('./config')
 const CommandFactory = require('./src/CommandFactory');
 
 var bot = new Discord.Client();
@@ -24,4 +25,4 @@ bot.on('message', function (message) {
 })
 
 
-bot.login('Njk0NDg4Nzg0MjkyNTQ0NTUy.XoNgrQ.o20vACHM11oa_M9x1cHY7Lblj70');
+bot.login(config.botToken);
