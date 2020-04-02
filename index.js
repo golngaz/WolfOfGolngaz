@@ -1,28 +1,20 @@
-const Discord = require('discord.js');
+const Discord = require('discord.js')
 const config = require('./config')
-const CommandFactory = require('./src/CommandFactory');
+const CommandFactory = require('./src/CommandFactory')
 
-var bot = new Discord.Client();
+var bot = new Discord.Client()
 
 bot.on('message', function (message) {
     CommandFactory.handle(message)
-        // .then(() => {
-        //
-        // })
-        // .catch(() => {
-        //     message.reply('Commande inconnue !')
-        // })
+         .then(() => {
+            message.author.send('Jeu initialisé ;)')
+         })
+         .catch((error) => {
+             message.author.send('Erreur lors de l\'initialisation du jeu')
 
-
-    // if (message.content === 'wog ping') {
-    //     message.reply('pong');
-    //     message.author.send('coucou mon petit');
-    // }
-    //
-    if (message.content === 'wog debug') {
-
-    }
+             console.error(error)
+         })
 })
 
 
-bot.login(config.botToken);
+bot.login(config.botToken)

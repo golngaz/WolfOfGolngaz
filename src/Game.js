@@ -52,7 +52,7 @@ module.exports = class Game {
                     .catch(console.error)
             })
 
-        let addPermissions = [];
+        let addPermissions = []
 
         wolfs
             .filter(member => member.user.username !== 'belaf13') // @todo supprimer c'est pour le test

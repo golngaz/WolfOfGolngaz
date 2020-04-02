@@ -12,6 +12,7 @@ module.exports = class CommandFactory {
         if (args.shift() === 'wog') {
             let stringCommand = args.shift()
 
+            // @todo optimiser
             let key = Object.keys(CommandList)
                 .filter(key => key === stringCommand)[0]
 

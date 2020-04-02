@@ -1,4 +1,4 @@
-const Permissions = require('discord.js/src/util/Permissions');
+const Permissions = require('discord.js/src/util/Permissions')
 
 module.exports = class Debug {
     /**
