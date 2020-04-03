@@ -1,15 +1,15 @@
 const Player = require('./Player')
 
-module.exports = class Witch extends Player {
+module.exports = class SimpleVillager extends Player {
     constructor(member) {
         super(member);
     }
 
     static key() {
-        return 'witch'
+        return 'simple-villager'
     }
 
     label() {
-        return 'Sorcière'
+        return 'Simple Villageois'
     }
 }

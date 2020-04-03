@@ -24,7 +24,8 @@ module.exports = class Debug {
                 console.log(channel.permissionsFor(rudy).has(Permissions.FLAGS.READ_MESSAGES))
             })
 
+        message.reply('ok')
 
-        return message.reply('ok')
+        return Promise.resolve()
     }
 }

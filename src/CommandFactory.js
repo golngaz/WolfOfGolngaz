@@ -2,7 +2,7 @@
 
 const CommandList = {
     debug: () => require('./Debug'),
-    start: () => require('./Game'),
+    start: () => require('./GameCommand'),
 }
 
 module.exports = class CommandFactory {
