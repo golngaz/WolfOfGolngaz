@@ -54,7 +54,7 @@ module.exports = class GameCommand {
      */
     init(message) {
         if (!this.canPlay()) {
-            message.reply(this.error);
+            message.reply(this.error)
 
             return Promise.reject(this.error)
         }
