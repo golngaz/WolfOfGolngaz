@@ -5,6 +5,8 @@ const NoRole = require('./Game/NoRole')
 const Seer = require('./Game/Seer')
 const Angel = require('./Game/Angel')
 const Hunter = require('./Game/Hunter')
+const Saving = require('./Game/Saving')
+const Cupid = require('./Game/Cupid')
 
 module.exports = class GameCommand {
     constructor(guild, gameMaster) {
@@ -28,14 +30,14 @@ module.exports = class GameCommand {
         console.debug('Lancement du jeu avec ' + this.players.length + ' personnes : ' + this.players.map(player => player.member.user.username).join(', '))
 
         // @todo rendre configurable depuis la commande init ?
-        this.roleMap = [Werewolf, Werewolf, Witch, Seer, Angel, Hunter]
+        this.roleMap = [Werewolf, Seer, Saving]
     }
 
     /**
      * @return {boolean}
      */
     canPlay() {
-        if (this.players.length <= this.roleMap.length) {
+        if (this.players.length < this.roleMap.length) {
             this.error = 'Le nombre de joueurs est insuffisant pour lancer une partie, il doit y avoir au moins ' + this.roleMap.length + ' joueurs'
 
             return false
@@ -60,6 +62,8 @@ module.exports = class GameCommand {
      * @return {Promise}
      */
     init(message) {
+        this.gameMaster.send('Init de la partie..')
+
         if (!this.canPlay()) {
             message.reply(this.error)
 
