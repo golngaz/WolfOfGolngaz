@@ -2,6 +2,9 @@ const SimpleVillager = require('./Game/SimpleVillager')
 const Werewolf = require('./Game/Werewolf')
 const Witch = require('./Game/Witch')
 const NoRole = require('./Game/NoRole')
+const Seer = require('./Game/Seer')
+const Angel = require('./Game/Angel')
+const Hunter = require('./Game/Hunter')
 
 module.exports = class GameCommand {
     constructor(guild, gameMaster) {
@@ -10,18 +13,22 @@ module.exports = class GameCommand {
         this.guild = guild
         this.gameMaster = gameMaster
 
+        this.gameChannel = guild.channels
+            .filter(channel => channel.name === 'village' && channel.type === 'text')
+            .first()
+
         this.wolfChannel = guild.channels
-            .filter(function(channel) {
-                return channel.name === 'loup-garous' && channel.type === 'text'
-            })
+            .filter(channel => channel.name === 'loup-garous' && channel.type === 'text')
             .first()
 
         this.players = guild.members
             .filter(member => member.roles.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
 
+        console.debug('Lancement du jeu avec ' + this.players.length + ' personnes : ' + this.players.map(player => player.member.user.username).join(', '))
+
         // @todo rendre configurable depuis la commande init ?
-        this.roleMap = [Werewolf, Werewolf, Witch, SimpleVillager]
+        this.roleMap = [Werewolf, Werewolf, Witch, Seer, Angel, Hunter]
     }
 
     /**
@@ -59,8 +66,9 @@ module.exports = class GameCommand {
             return Promise.reject(this.error)
         }
 
+        let roleLength = this.roleMap.length
         // complète les roles initiaux avec des simples villageois
-        for (let i = 0 ; i < this.players.length - this.roleMap.length ; i++) {
+        for (let i = 0 ; i < (this.players.length - roleLength) ; i++) {
             this.roleMap.push(SimpleVillager)
         }
 
@@ -79,6 +87,13 @@ module.exports = class GameCommand {
         })
 
         return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
+            .then(() => {
+                this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles())
+            })
+    }
+
+    displayRoles() {
+        return this.players.filter(player => !player.is(SimpleVillager.key())).map(player => player.label()).join(', ')
     }
 
     /**
@@ -101,7 +116,6 @@ module.exports = class GameCommand {
             .filter(member => member.user.username !== 'WolfOfGolngaz')
             .forEach(member => {
                 this.wolfChannel.overwritePermissions(member, {READ_MESSAGES: false})
-                    .then(() => console.log('suppression des droits loup garou pour ' + member.user.username + ' ok'))
                     .catch(console.error)
             })
 
