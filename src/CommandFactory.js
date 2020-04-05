@@ -3,6 +3,13 @@
 const CommandList = {
     debug: () => require('./Debug'),
     start: () => require('./GameCommand'),
+    kill: () => require('./KillCommand'),
+    poll: () => require('./PollCommand'),
+    reset: () => require('./ResetCommand'),
+}
+
+const FreeCommandList = {
+    join: () => require('./JoinCommand'),
 }
 
 module.exports = class CommandFactory {
@@ -12,15 +19,22 @@ module.exports = class CommandFactory {
         if (args.shift() === 'wog') {
             let stringCommand = args.shift()
 
-            // @todo optimiser
-            let key = Object.keys(CommandList)
-                .filter(key => key === stringCommand)[0]
+            var command = CommandList[stringCommand]
+            if (command) {
+                if (message.author.username !== 'golngaz' || message.author.discriminator !== '8508') {
+                    return message.reply('Vous n\'êtes pas autorisé à faire de commande !')
+                }
+            }
 
-            if (!key) {
+            command = command || FreeCommandList[stringCommand]
+
+            if (!command) {
                 return message.reply('Commande inconnue !')
             }
 
-            return CommandList[key]().execute(message, args)
+            command().execute(message, args)
+                .then(() => console.log('commande executé'))
+                .catch(console.error)
         }
     }
 }

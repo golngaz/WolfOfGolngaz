@@ -9,7 +9,7 @@ module.exports = class Debug {
     static execute(message, args) {
         var game = new GameCommand(message.guild, message.author);
 
-        message.reply(game.displayRoles())
+        message.reply(game.roleMap.map(roleClass => (new roleClass()).label()).join(', '))
 
         return Promise.resolve()
     }

@@ -7,6 +7,7 @@ const Angel = require('./Game/Angel')
 const Hunter = require('./Game/Hunter')
 const Saving = require('./Game/Saving')
 const Cupid = require('./Game/Cupid')
+const Fox = require('./Game/Fox')
 
 module.exports = class GameCommand {
     constructor(guild, gameMaster) {
@@ -30,7 +31,7 @@ module.exports = class GameCommand {
         console.debug('Lancement du jeu avec ' + this.players.length + ' personnes : ' + this.players.map(player => player.member.user.username).join(', '))
 
         // @todo rendre configurable depuis la commande init ?
-        this.roleMap = [Werewolf, Seer, Saving]
+        this.roleMap = [Werewolf, Werewolf, Seer, Witch, Hunter, Fox, Cupid]
     }
 
     /**
@@ -43,19 +44,39 @@ module.exports = class GameCommand {
             return false
         }
 
+        if (this.hasOffline()) {
+            this.error = 'Certains joueurs sont déconnectés'
+
+            return false
+        }
+
         if (!this.wolfChannel) {
             this.error = 'Salon des loups introuvable'
 
             return false
         }
 
-        if (this.players.some(player => player.member.user.username === this.gameMaster.username)) {
+        if (this.gameMasterIsPlayer()) {
             this.error = 'Le MJ ne doit pas faire partie des joueurs '
 
             return false
         }
 
         return true
+    }
+
+    /**
+     * @return {boolean}
+     */
+    hasOffline() {
+        return this.players.some(player => player.member.presence.status === 'offline')
+    }
+
+    /**
+     * @return {boolean}
+     */
+    gameMasterIsPlayer() {
+        return this.players.some(player => player.member.user.username === this.gameMaster.username)
     }
 
     /**
@@ -90,14 +111,28 @@ module.exports = class GameCommand {
             this.gameMaster.send(player.member + ' est ' + player.label())
         })
 
+        this.removeDeathRole()
+
         return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
-            .then(() => {
-                this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles())
-            })
+            .then(() => this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles()))
     }
 
     displayRoles() {
-        return this.players.filter(player => !player.is(SimpleVillager.key())).map(player => player.label()).join(', ')
+        return this.players
+            .filter(player => !player.is(SimpleVillager.key()))
+            .map(player => player.label())
+            .join(', ')
+    }
+
+    /**
+     * @param {Player=} player
+     */
+    removeDeathRole(player) {
+        var deathRole = this.guild.roles.filter(role => role.name === 'mort').first()
+
+        var players = player ? [player] : this.players.filter(player => player.member.roles.filter(role => role.name === 'mort'))
+
+        players.forEach(player => player.member.removeRole(deathRole))
     }
 
     /**
