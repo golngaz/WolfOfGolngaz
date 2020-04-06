@@ -1,7 +1,7 @@
 const Permissions = require('discord.js/src/util/Permissions')
 const GameCommand = require('./GameCommand')
 
-module.exports = class Debug {
+module.exports = class DebugCommand {
     /**
      * @param message
      * @param {string[]} args
