@@ -1,7 +1,8 @@
+
 module.exports = class CommandFactory {
 
     /**
-     * @return {object<(function(): Command)>}
+     * @return {object<(function(): Class)>}
      */
     static gameMasterCommandList() {
         return {
@@ -14,7 +15,7 @@ module.exports = class CommandFactory {
     }
 
     /**
-     * @return {object<(function(): Command)>}
+     * @return {object<(function(): Class)>}
      */
     static freeCommandList() {
         return {
@@ -23,26 +24,26 @@ module.exports = class CommandFactory {
         }
     }
 
-    static handle(message, db) {
+    static handle(message, di) {
         let args = message.content.split(' ')
 
         if (args.shift() === 'wog') {
             let stringCommand = args.shift()
 
-            var command = this.constructor.gameMasterCommandList()[stringCommand]
+            let command = this.gameMasterCommandList()[stringCommand]
             if (command) {
                 if (message.author.username !== 'golngaz' || message.author.discriminator !== '8508') {
                     return message.reply('Vous n\'êtes pas autorisé à faire de commande !')
                 }
             }
 
-            command = command || this.constructor.freeCommandList()[stringCommand]
+            command = command || this.freeCommandList()[stringCommand]
 
             if (!command) {
                 return message.reply('Commande inconnue !')
             }
 
-            command().execute(message, args, db)
+            command().execute(message, args, di)
                 .then(() => console.log('commande executé'))
                 .catch(console.error)
         }

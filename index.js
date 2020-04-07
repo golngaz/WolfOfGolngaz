@@ -1,28 +1,35 @@
 const Discord = require('discord.js')
 const config = require('./config')
-const CommandFactory = require('./src/CommandFactory')
+const ResetService = require('./src/Command/ResetService')
+const CommandFactory = require('./src/Command/CommandFactory')
+const Di = require('./src/Di')
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 
 const adapter = new FileSync('db.json')
 const db = low(adapter)
 const bot = new Discord.Client()
+const di = new Di()
 
 bot.on('message', function (message) {
     // garde fou permettant d'éviter le chargemlent de dépendances unitelement pour chaque message recu
     if (message.content.startsWith('wog ')) {
-        CommandFactory.handle(message)
+        let gameGuild = db.get('guilds').find({id: message.guild.id}).value()
+        if (!gameGuild) {
+            db.get('guilds').push({id: message.guild.id}).write()
+        }
+
+        CommandFactory.handle(message, di)
     }
 })
 
+bot.on('presenceUpdate', function (oldMember, newMember) {
 
+    if (newMember.presence.status === 'offline') {
+        di.get(ResetService.name).resetMember(newMember)
+    }
+})
 
-db.defaults({starts: 0, ok: 'pas ok'})
+db.defaults({guilds: []}).write()
 
-console.log(db.get('starts').value())
-
-db.update('starts', n => n + 1)
-    .write()
-
-
-//bot.login(config.botToken)
+bot.login(config.botToken)

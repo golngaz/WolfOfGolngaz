@@ -1,4 +1,4 @@
-const NoRole = require('./Game/NoRole')
+const NoRole = require('../Game/NoRole')
 
 module.exports = class KillCommand {
 

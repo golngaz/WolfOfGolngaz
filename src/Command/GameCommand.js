@@ -1,20 +1,22 @@
-const SimpleVillager = require('./Game/SimpleVillager')
-const Werewolf = require('./Game/Werewolf')
-const Witch = require('./Game/Witch')
-const NoRole = require('./Game/NoRole')
-const Seer = require('./Game/Seer')
-const Angel = require('./Game/Angel')
-const Hunter = require('./Game/Hunter')
-const Saving = require('./Game/Saving')
-const Cupid = require('./Game/Cupid')
-const Fox = require('./Game/Fox')
+const SimpleVillager = require('../Game/SimpleVillager')
+const Werewolf = require('../Game/Werewolf')
+const Witch = require('../Game/Witch')
+const NoRole = require('../Game/NoRole')
+const Seer = require('../Game/Seer')
+const Angel = require('../Game/Angel')
+const Hunter = require('../Game/Hunter')
+const Saving = require('../Game/Saving')
+const Cupid = require('../Game/Cupid')
+const Fox = require('../Game/Fox')
 
 module.exports = class GameCommand {
-    constructor(guild, gameMaster) {
+    constructor(message, guild, gameMaster, db) {
         this.error = ''
 
+        this.message = message
         this.guild = guild
         this.gameMaster = gameMaster
+        this.db = db
 
         this.gameChannel = guild.channels
             .filter(channel => channel.name === 'village' && channel.type === 'text')
@@ -32,6 +34,48 @@ module.exports = class GameCommand {
 
         // @todo rendre configurable depuis la commande init ?
         this.roleMap = [Werewolf, Werewolf, Seer, Witch, Hunter, Fox, Cupid]
+    }
+
+    static execute(message, args, di) {
+        let game = new this(message, message.guild, message.author, di.db)
+
+        return game.init().catch(console.error)
+    }
+
+    /**
+     * @return {Promise}
+     */
+    init() {
+        this.gameMaster.send('Init de la partie..')
+
+        if (!this.canPlay()) {
+            return this.message.reply(this.error)
+        }
+
+        let roleLength = this.roleMap.length
+        // complète les roles initiaux avec des simples villageois
+        for (let i = 0 ; i < (this.players.length - roleLength) ; i++) {
+            this.roleMap.push(SimpleVillager)
+        }
+
+        let players = this.players.slice()
+        this.players = []
+
+        this.roleMap.forEach(roleClass => {
+            var randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0]
+
+            this.players.push(roleClass.fromPlayer(randomPlayer))
+        })
+
+        this.players.forEach(player => {
+            player.send('Tu es ' + player.label() + ' !')
+            this.gameMaster.send(player.member + ' est ' + player.label())
+        })
+
+        this.removeDeathRole()
+
+        return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
+            .then(() => this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles()))
     }
 
     /**
@@ -79,44 +123,6 @@ module.exports = class GameCommand {
         return this.players.some(player => player.member.user.username === this.gameMaster.username)
     }
 
-    /**
-     * @return {Promise}
-     */
-    init(message) {
-        this.gameMaster.send('Init de la partie..')
-
-        if (!this.canPlay()) {
-            message.reply(this.error)
-
-            return Promise.reject(this.error)
-        }
-
-        let roleLength = this.roleMap.length
-        // complète les roles initiaux avec des simples villageois
-        for (let i = 0 ; i < (this.players.length - roleLength) ; i++) {
-            this.roleMap.push(SimpleVillager)
-        }
-
-        let players = this.players.slice()
-        this.players = []
-
-        this.roleMap.forEach(roleClass => {
-            var randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0]
-
-            this.players.push(roleClass.fromPlayer(randomPlayer))
-        })
-
-        this.players.forEach(player => {
-            player.send('Tu es ' + player.label() + ' !')
-            this.gameMaster.send(player.member + ' est ' + player.label())
-        })
-
-        this.removeDeathRole()
-
-        return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
-            .then(() => this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles()))
-    }
-
     displayRoles() {
         return this.players
             .filter(player => !player.is(SimpleVillager.key()))
@@ -133,16 +139,6 @@ module.exports = class GameCommand {
         var players = player ? [player] : this.players.filter(player => player.member.roles.filter(role => role.name === 'mort'))
 
         players.forEach(player => player.member.removeRole(deathRole))
-    }
-
-    /**
-     * @param message
-     * @param {string[]} args
-     */
-    static execute(message, args) {
-        let game = new this(message.guild, message.author)
-
-        return game.init(message).catch(console.error)
     }
 
     /**
