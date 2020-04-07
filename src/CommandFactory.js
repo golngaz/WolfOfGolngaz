@@ -23,7 +23,7 @@ module.exports = class CommandFactory {
         }
     }
 
-    static handle(message) {
+    static handle(message, db) {
         let args = message.content.split(' ')
 
         if (args.shift() === 'wog') {
@@ -42,7 +42,7 @@ module.exports = class CommandFactory {
                 return message.reply('Commande inconnue !')
             }
 
-            command().execute(message, args)
+            command().execute(message, args, db)
                 .then(() => console.log('commande executé'))
                 .catch(console.error)
         }
