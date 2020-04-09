@@ -12,7 +12,7 @@ const bot = new Discord.Client()
 const di = new Di()
 
 bot.on('message', function (message) {
-    // garde fou permettant d'éviter le chargemlent de dépendances unitelement pour chaque message recu
+    // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
     if (message.content.startsWith('wog ')) {
         let gameGuild = db.get('guilds').find({id: message.guild.id}).value()
         if (!gameGuild) {
