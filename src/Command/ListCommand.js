@@ -8,6 +8,7 @@ module.exports = class ListCommand extends AbstractCommand {
      * @param {Di} di
      */
     static execute(message, args, di) {
+        // @todo utiliser la db maintenant directement
         var game = new GameCommand(message, di.db);
 
         message.reply(game.roleMap.map(roleClass => (new roleClass()).label()).join(', '))

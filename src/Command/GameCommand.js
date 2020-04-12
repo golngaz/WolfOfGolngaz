@@ -9,6 +9,7 @@ const Saving = require('../Game/Saving')
 const Cupid = require('../Game/Cupid')
 const Fox = require('../Game/Fox')
 const Shaman = require('../Game/Shaman')
+const PlayerFactory = require('../Game/PlayerFactory')
 const AbstractCommand = require('./AbstractCommand')
 
 module.exports = class GameCommand extends AbstractCommand {
@@ -35,7 +36,7 @@ module.exports = class GameCommand extends AbstractCommand {
             .map(member => new NoRole(member))
 
         // @todo rendre configurable depuis la commande init ?
-        this.roleMap = [Werewolf]
+        this.roleMap = this.guildDb.get('config.roles').value().map(key => PlayerFactory.mapping()[key])
     }
 
     static execute(message, args, di) {
@@ -108,7 +109,7 @@ module.exports = class GameCommand extends AbstractCommand {
         let recapGameMaster = ''
         this.players.forEach(player => {
             player.send('Tu es ' + player.label() + ' !')
-            recapGameMaster += player.member + ' est ' + player.label() + '\n'
+            recapGameMaster += player.member + ' est **' + player.label() + '**\n'
         })
 
         return this.gameMaster.send(recapGameMaster)

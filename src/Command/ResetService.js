@@ -27,8 +27,6 @@ module.exports = class ResetService {
         member.removeRole(mayorRole)
             .catch(console.error)
 
-        // @todo lorsqu'un utilisateur n'est pas dans le salon, discord renvoie une erreur.. Il faudrait faire le tour de la question
-        member.setMute(false)
-            .catch(console.error)
+        // @todo déplacer les membres dans un autre salon
     }
 }

@@ -18,6 +18,8 @@ bot.on('message', function (message) {
         return
     }
 
+    di.setGuild(message.guild)
+
     let gameService = di.get(GameService.name, message.guild)
 
     // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
@@ -28,12 +30,13 @@ bot.on('message', function (message) {
     }
 })
 
-bot.on('presenceUpdate', function (oldMember, newMember) {
-
-    if (newMember.presence.status === 'offline') {
-        di.get(ResetService.name).resetMember(newMember)
-    }
-})
+// @todo rajouter une condition vérifiant qu'aucune game n'est en cours
+// bot.on('presenceUpdate', function (oldMember, newMember) {
+//
+//     if (newMember.presence.status === 'offline') {
+//         di.get(ResetService.name).resetMember(newMember)
+//     }
+// })
 
 db.defaults({guilds: []}).write()
 

@@ -24,6 +24,7 @@ module.exports = class CommandFactory {
             join: () => require('./JoinCommand'),
             list: () => require('./ListCommand'),
             roles: () => require('./RolesCommand'),
+            config: () => require('./Config/ConfigCommand'),
         }
     }
 
@@ -46,8 +47,13 @@ module.exports = class CommandFactory {
                 return message.reply('Commande inconnue !')
             }
 
-            command().execute(message, args, di)
-                .catch(console.error)
+            let response = command().execute(message, args, di)
+            if (!response instanceof Promise) {
+                console.error('la commande ' + command + ' n\'a pas renvoyé de promise')
+
+                return Promise.reject()
+            }
+            return response.catch(console.error)
         }
     }
 }

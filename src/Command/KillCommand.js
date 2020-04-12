@@ -34,8 +34,6 @@ module.exports = class KillCommand extends AbstractCommand {
                 console.error(error)
             })
 
-        memberToKill.setMute(true)
-
         var reason = ''
 
         if (args[1]) {

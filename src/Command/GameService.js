@@ -11,6 +11,32 @@ module.exports = class GameService {
         }
     }
 
+    initConfig() {
+        let node = this.db.get('guilds').find({id: this.guild.id})
+
+        node.value().game = {
+            active: false,
+            time: 'night',
+            masterMemberId: '',
+            players: [],
+        }
+
+        node.value().config = {
+            roles: ['werewolf', 'werewolf', 'seer']
+        }
+
+        node.write()
+        // node.get('active').set(false).write()
+        // node.get('time').set('night').write()
+        // node.get('masterMemberId').set('').write()
+        // node.get('players').set([]).write()
+        // node.get('config').set({
+        //     roles: ['werewolf']
+        // }).write()
+        //
+        // node.write()
+    }
+
     /**
      * Est-ce qu'une partie est en cours
      */
