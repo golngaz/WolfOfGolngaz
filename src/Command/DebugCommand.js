@@ -3,10 +3,8 @@ const GameCommand = require('./GameCommand')
 
 module.exports = class DebugCommand {
     static execute(message, args, di) {
-        let game = new GameCommand(message.guild, message.author);
-
-        message.reply(game.roleMap.map(roleClass => (new roleClass()).label()).join(', '))
-
-        return Promise.resolve()
+        console.log(message.content, message.mentions)
+        message.reply(message.content)
+        return message.reply(message.mentions[0])
     }
 }

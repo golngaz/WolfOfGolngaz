@@ -2,6 +2,8 @@ const Discord = require('discord.js')
 const config = require('./config')
 const ResetService = require('./src/Command/ResetService')
 const CommandFactory = require('./src/Command/CommandFactory')
+const Shaman = require('./src/Game/Shaman')
+const GameService = require('./src/Command/GameService')
 const Di = require('./src/Di')
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
@@ -9,17 +11,20 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync('db.json')
 const db = low(adapter)
 const bot = new Discord.Client()
-const di = new Di()
+const di = new Di(db)
 
 bot.on('message', function (message) {
+    if (!message.guild) {
+        return
+    }
+
+    let gameService = di.get(GameService.name, message.guild)
+
     // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
     if (message.content.startsWith('wog ')) {
-        let gameGuild = db.get('guilds').find({id: message.guild.id}).value()
-        if (!gameGuild) {
-            db.get('guilds').push({id: message.guild.id}).write()
-        }
-
         CommandFactory.handle(message, di)
+    } else if (gameService.isRunning()) {
+        return gameService.handleMessage(message)
     }
 })
 

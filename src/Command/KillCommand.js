@@ -1,4 +1,5 @@
 const NoRole = require('../Game/NoRole')
+const PlayerFactory = require('../Game/PlayerFactory')
 
 module.exports = class KillCommand {
 
@@ -6,7 +7,7 @@ module.exports = class KillCommand {
      * @param message
      * @param {string[]} args
      */
-    static execute(message, args) {
+    static execute(message, args, di) {
         if (!args[0]) {
             return message.reply('Vous devez préciser un nom de joueur')
         }
@@ -45,6 +46,14 @@ module.exports = class KillCommand {
             reason = '(Raison : **'+args[1]+'**)'
         }
 
-        return gameChannel.send('Le joueur ' + memberToKill + ' est mort.. Rip ' + reason)
+        let memberDb = di.db.get('guilds').find({id: message.guild.id}).get('game.players').find({memberId: memberToKill.id}).value()
+
+        if (!memberDb) {
+            message.reply('Le joueur n\'a pas été trouvé dans la partie')
+        }
+
+        let player = PlayerFactory.get(memberDb.roleKey, memberToKill)
+
+        return gameChannel.send('Le joueur ' + memberToKill + ', qui était "**' + player.label() + '**" est mort.. Rip ' + reason)
     }
 }

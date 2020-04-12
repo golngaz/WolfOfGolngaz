@@ -8,36 +8,36 @@ const Hunter = require('../Game/Hunter')
 const Saving = require('../Game/Saving')
 const Cupid = require('../Game/Cupid')
 const Fox = require('../Game/Fox')
+const Shaman = require('../Game/Shaman')
 
 module.exports = class GameCommand {
-    constructor(message, guild, gameMaster, db) {
+    constructor(message, db) {
         this.error = ''
 
         this.message = message
-        this.guild = guild
-        this.gameMaster = gameMaster
+        this.guild = message.guild
+        this.guildDb = db.get('guilds').find({id: this.guild.id})
+        this.gameMaster = message.author
         this.db = db
 
-        this.gameChannel = guild.channels
+        this.gameChannel = this.guild.channels
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
 
-        this.wolfChannel = guild.channels
+        this.wolfChannel = this.guild.channels
             .filter(channel => channel.name === 'loup-garous' && channel.type === 'text')
             .first()
 
-        this.players = guild.members
+        this.players = this.guild.members
             .filter(member => member.roles.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
 
-        console.debug('Lancement du jeu avec ' + this.players.length + ' personnes : ' + this.players.map(player => player.member.user.username).join(', '))
-
         // @todo rendre configurable depuis la commande init ?
-        this.roleMap = [Werewolf, Werewolf, Seer, Witch, Hunter, Fox, Cupid]
+        this.roleMap = [Werewolf]
     }
 
     static execute(message, args, di) {
-        let game = new this(message, message.guild, message.author, di.db)
+        let game = new this(message, di.db)
 
         return game.init().catch(console.error)
     }
@@ -52,30 +52,64 @@ module.exports = class GameCommand {
             return this.message.reply(this.error)
         }
 
-        let roleLength = this.roleMap.length
-        // complète les roles initiaux avec des simples villageois
-        for (let i = 0 ; i < (this.players.length - roleLength) ; i++) {
-            this.roleMap.push(SimpleVillager)
-        }
+        this._completeRoleMap()
 
         let players = this.players.slice()
         this.players = []
 
         this.roleMap.forEach(roleClass => {
-            var randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0]
+            let randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0]
 
             this.players.push(roleClass.fromPlayer(randomPlayer))
         })
 
-        this.players.forEach(player => {
-            player.send('Tu es ' + player.label() + ' !')
-            this.gameMaster.send(player.member + ' est ' + player.label())
-        })
 
-        this.removeDeathRole()
+        this._notifyPlayersRole()
+
+        this._saveGame()
+
+        this._removeDeathRole()
 
         return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
             .then(() => this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles()))
+    }
+
+    _saveGame() {
+        let playersData = []
+        this.players.forEach(player => {
+            playersData.push({
+                memberId: player.member.id,
+                roleKey: player.constructor.key(),
+                data: {}
+            })
+        })
+
+        this.guildDb.value().game = {
+            active: true,
+            time: 'night',
+            masterMemberId: this.gameMaster.id,
+            players: playersData,
+        }
+
+        this.guildDb.write()
+    }
+
+    _completeRoleMap() {
+        let roleLength = this.roleMap.length
+        // complète les roles initiaux avec des simples villageois
+        for (let i = 0 ; i < (this.players.length - roleLength) ; i++) {
+            this.roleMap.push(SimpleVillager)
+        }
+    }
+
+    _notifyPlayersRole() {
+        let recapGameMaster = ''
+        this.players.forEach(player => {
+            player.send('Tu es ' + player.label() + ' !')
+            recapGameMaster += player.member + ' est ' + player.label() + '\n'
+        })
+
+        return this.gameMaster.send(recapGameMaster)
     }
 
     /**
@@ -133,7 +167,7 @@ module.exports = class GameCommand {
     /**
      * @param {Player=} player
      */
-    removeDeathRole(player) {
+    _removeDeathRole(player) {
         var deathRole = this.guild.roles.filter(role => role.name === 'mort').first()
 
         var players = player ? [player] : this.players.filter(player => player.member.roles.filter(role => role.name === 'mort'))

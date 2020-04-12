@@ -11,6 +11,7 @@ module.exports = class CommandFactory {
             kill: () => require('./KillCommand'),
             poll: () => require('./PollCommand'),
             reset: () => require('./ResetCommand'),
+            time: () => require('./TimeCommand'),
         }
     }
 
@@ -21,6 +22,7 @@ module.exports = class CommandFactory {
         return {
             join: () => require('./JoinCommand'),
             list: () => require('./ListCommand'),
+            roles: () => require('./RolesCommand'),
         }
     }
 
@@ -44,7 +46,6 @@ module.exports = class CommandFactory {
             }
 
             command().execute(message, args, di)
-                .then(() => console.log('commande executé'))
                 .catch(console.error)
         }
     }
