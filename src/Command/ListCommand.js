@@ -1,6 +1,7 @@
 const GameCommand = require('./GameCommand')
+const AbstractCommand = require('./AbstractCommand')
 
-module.exports = class ListCommand {
+module.exports = class ListCommand extends AbstractCommand {
     /**
      * @param message
      * @param {string[]} args
@@ -12,5 +13,9 @@ module.exports = class ListCommand {
         message.reply(game.roleMap.map(roleClass => (new roleClass()).label()).join(', '))
 
         return Promise.resolve()
+    }
+
+    static help() {
+        return 'Affiche la liste des rôles de la prochaine partie'
     }
 }

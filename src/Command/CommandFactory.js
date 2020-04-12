@@ -20,6 +20,7 @@ module.exports = class CommandFactory {
      */
     static freeCommandList() {
         return {
+            help: () => require('./HelpCommand'),
             join: () => require('./JoinCommand'),
             list: () => require('./ListCommand'),
             roles: () => require('./RolesCommand'),

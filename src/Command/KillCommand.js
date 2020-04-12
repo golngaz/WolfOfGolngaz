@@ -1,12 +1,8 @@
-const NoRole = require('../Game/NoRole')
 const PlayerFactory = require('../Game/PlayerFactory')
+const AbstractCommand = require('./AbstractCommand')
 
-module.exports = class KillCommand {
+module.exports = class KillCommand extends AbstractCommand {
 
-    /**
-     * @param message
-     * @param {string[]} args
-     */
     static execute(message, args, di) {
         if (!args[0]) {
             return message.reply('Vous devez préciser un nom de joueur')
@@ -55,5 +51,13 @@ module.exports = class KillCommand {
         let player = PlayerFactory.get(memberDb.roleKey, memberToKill)
 
         return gameChannel.send('Le joueur ' + memberToKill + ', qui était "**' + player.label() + '**" est mort.. Rip ' + reason)
+    }
+
+    static signature() {
+        return '@joueur [raison]'
+    }
+
+    static help() {
+        return 'Tue une personne dans le jeu'
     }
 }

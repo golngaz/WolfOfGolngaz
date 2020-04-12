@@ -1,11 +1,7 @@
 const GameCommand = require('./GameCommand')
+const AbstractCommand = require('./AbstractCommand')
 
-module.exports = class TimeCommand {
-    /**
-     * @param message
-     * @param {string[]} args
-     * @param {Di} di
-     */
+module.exports = class TimeCommand extends AbstractCommand {
     static execute(message, args, di) {
         if (!args[0] || args[0] !== 'day' && args[0] !== 'night') {
             return message.reply('vous devez préciser day/night')
@@ -47,5 +43,13 @@ module.exports = class TimeCommand {
             day: 'Le jour vient de se lever au village',
             night: 'La nuit vient de tomber sur le village !'
         }[key]
+    }
+
+    static signature() {
+        return '[day|night]'
+    }
+
+    static help() {
+        return 'Gère la journée pendant la partie'
     }
 }

@@ -1,15 +1,6 @@
-const SimpleVillager = require('../Game/SimpleVillager')
-const Werewolf = require('../Game/Werewolf')
-const Witch = require('../Game/Witch')
-const NoRole = require('../Game/NoRole')
-const Seer = require('../Game/Seer')
-const Angel = require('../Game/Angel')
-const Hunter = require('../Game/Hunter')
-const Saving = require('../Game/Saving')
-const Cupid = require('../Game/Cupid')
-const GuildMember = require('discord.js/src/structures/GuildMember')
+const AbstractCommand = require('./AbstractCommand')
 
-module.exports = class KillCommand {
+module.exports = class KillCommand extends AbstractCommand {
     /**
      * @param message
      * @param {string[]} args
@@ -31,5 +22,9 @@ module.exports = class KillCommand {
             .join('" "')
 
         return gameChannel.send('/poll "Voter pour éliminer.." "' + membersPolls + '"')
+    }
+
+    static help() {
+        return 'Génère un vote de villageois sur tous les villageois vivant'
     }
 }

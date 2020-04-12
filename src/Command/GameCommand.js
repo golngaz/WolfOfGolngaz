@@ -9,9 +9,11 @@ const Saving = require('../Game/Saving')
 const Cupid = require('../Game/Cupid')
 const Fox = require('../Game/Fox')
 const Shaman = require('../Game/Shaman')
+const AbstractCommand = require('./AbstractCommand')
 
-module.exports = class GameCommand {
+module.exports = class GameCommand extends AbstractCommand {
     constructor(message, db) {
+        super()
         this.error = ''
 
         this.message = message

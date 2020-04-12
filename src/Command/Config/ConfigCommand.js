@@ -1,5 +1,5 @@
 
-module.exports = class ConfigCommand {
+module.exports = class ConfigCommand AbstractCommand{
     constructor() {
         db.get('guilds').find({id: guild.id}).value()
     }

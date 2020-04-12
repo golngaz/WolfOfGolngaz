@@ -1,9 +1,7 @@
 const PlayerFactory = require('../Game/PlayerFactory')
+const AbstractCommand = require('../Command/AbstractCommand')
 
-module.exports = class RolesCommand {
-    /**
-     *
-     */
+module.exports = class RolesCommand extends AbstractCommand {
     static execute(message, args, di) {
         let response = '```\n'
         let mapping = PlayerFactory.mapping()
@@ -20,5 +18,9 @@ module.exports = class RolesCommand {
         response += '\n```'
 
         return message.channel.send(response)
+    }
+
+    static help() {
+        return 'Affiche la liste des rôles gérés par le bot'
     }
 }
