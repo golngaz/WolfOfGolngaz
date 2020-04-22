@@ -11,9 +11,9 @@ module.exports = class GameCommand extends AbstractCommand {
 
         this.message = message
         this.guild = message.guild
-        this.guildDb = db.get('guilds').find({id: this.guild.id})
         this.gameMaster = message.author
         this.db = db
+        this.guildDb = GameService.initDb(this.db, this.guild.id)
 
         this.gameChannel = this.guild.channels
             .filter(channel => channel.name === 'village' && channel.type === 'text')
@@ -164,7 +164,7 @@ module.exports = class GameCommand extends AbstractCommand {
     _removeDeathRole(player) {
         var deathRole = this.guild.roles.filter(role => role.name === 'mort').first()
 
-        var players = player ? [player] : this.players.filter(player => player.member.roles.filter(role => role.name === 'mort'))
+        var players = player ? [player] : this.players.filter(player => player.member.roles.some(role => role.name === 'mort'))
 
         players.forEach(player => player.member.removeRole(deathRole))
     }

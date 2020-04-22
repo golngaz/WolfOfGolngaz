@@ -1,3 +1,4 @@
+const GameService = require('./GameService')
 
 module.exports = class CommandFactory {
 
@@ -47,6 +48,8 @@ module.exports = class CommandFactory {
             if (!command) {
                 return message.reply('Commande inconnue !')
             }
+
+            GameService.initDb(di.db, message.guild.id)
 
             let response = command().execute(message, args, di)
             if (!response instanceof Promise) {
