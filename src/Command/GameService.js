@@ -11,6 +11,19 @@ module.exports = class GameService {
         }
     }
 
+    end() {
+        let node = this.db.get('guilds').find({id: this.guild.id})
+
+        node.value().game = {
+            active: false,
+            time: 'night',
+            masterMemberId: '',
+            players: [],
+        }
+
+        node.write()
+    }
+
     initConfig() {
         let node = this.db.get('guilds').find({id: this.guild.id})
 
@@ -26,15 +39,6 @@ module.exports = class GameService {
         }
 
         node.write()
-        // node.get('active').set(false).write()
-        // node.get('time').set('night').write()
-        // node.get('masterMemberId').set('').write()
-        // node.get('players').set([]).write()
-        // node.get('config').set({
-        //     roles: ['werewolf']
-        // }).write()
-        //
-        // node.write()
     }
 
     /**

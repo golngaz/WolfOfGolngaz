@@ -13,6 +13,10 @@ const db = low(adapter)
 const bot = new Discord.Client()
 const di = new Di(db)
 
+bot.on('ready', function () {
+    console.info('Je suis ready')
+})
+
 bot.on('message', function (message) {
     if (!message.guild) {
         return

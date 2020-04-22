@@ -23,7 +23,7 @@ module.exports = class HelpCommand extends AbstractCommand {
         let command = mj ? CommandFactory.gameMasterCommandList()[key] : CommandFactory.freeCommandList()[key]
 
         if (!command) {
-            message.reply('Commande inconnue (ou pas de droits)')
+            return message.reply('Commande inconnue (ou pas de droits)')
         }
 
         command = command()

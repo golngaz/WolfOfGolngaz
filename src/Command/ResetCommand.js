@@ -6,6 +6,8 @@ module.exports = class ResetCommand extends AbstractCommand {
     static execute(message, args, di) {
         let members = message.guild.members.filter(member => member.roles.some(role => role.name === 'jeu'))
 
+        di.get(GameService.name).end()
+
         if (!args[0]) {
             di.get(ResetService.name).resetMembers(members, false)
 

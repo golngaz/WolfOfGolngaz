@@ -22,6 +22,7 @@ module.exports = class CommandFactory {
         return {
             help: () => require('./HelpCommand'),
             join: () => require('./JoinCommand'),
+            leave: () => require('./LeaveCommand'),
             list: () => require('./ListCommand'),
             roles: () => require('./RolesCommand'),
             config: () => require('./Config/ConfigCommand'),

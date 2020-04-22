@@ -1,3 +1,4 @@
+const config = require('../../config')
 const GameCommand = require('./GameCommand')
 const AbstractCommand = require('./AbstractCommand')
 
@@ -25,10 +26,22 @@ module.exports = class TimeCommand extends AbstractCommand {
 
         let playerRole = message.guild.roles.filter(role => role.name === 'jeu').first()
 
+        if (time === 'night') {
+            this._handleNight(message.guild)
+        }
+
         return message.guild.channels
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
             .send(playerRole + ' ' + this.messageAnnounce(time))
+    }
+
+    static _handleNight(guild) {
+        // @todo finir (musique)
+        let channel = guild.channels.filter(channel => channel.name === 'commands' && channel.type === 'text').first()
+
+        return channel
+            .send('_play ' + config.music.night.link)
     }
 
     static _translate(key) {

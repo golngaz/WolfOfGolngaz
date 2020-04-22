@@ -1,14 +1,6 @@
 const SimpleVillager = require('../Game/SimpleVillager')
 const Werewolf = require('../Game/Werewolf')
-const Witch = require('../Game/Witch')
 const NoRole = require('../Game/NoRole')
-const Seer = require('../Game/Seer')
-const Angel = require('../Game/Angel')
-const Hunter = require('../Game/Hunter')
-const Saving = require('../Game/Saving')
-const Cupid = require('../Game/Cupid')
-const Fox = require('../Game/Fox')
-const Shaman = require('../Game/Shaman')
 const PlayerFactory = require('../Game/PlayerFactory')
 const AbstractCommand = require('./AbstractCommand')
 
@@ -35,7 +27,6 @@ module.exports = class GameCommand extends AbstractCommand {
             .filter(member => member.roles.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
 
-        // @todo rendre configurable depuis la commande init ?
         this.roleMap = this.guildDb.get('config.roles').value().map(key => PlayerFactory.mapping()[key])
     }
 
