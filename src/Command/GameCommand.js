@@ -3,6 +3,7 @@ const Werewolf = require('../Game/Werewolf')
 const NoRole = require('../Game/NoRole')
 const PlayerFactory = require('../Game/PlayerFactory')
 const AbstractCommand = require('./AbstractCommand')
+const GameService = require('./GameService')
 
 module.exports = class GameCommand extends AbstractCommand {
     constructor(message, db) {

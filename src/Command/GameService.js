@@ -81,7 +81,7 @@ module.exports = class GameService {
         let node = db.get('guilds').find({id: guildId})
 
         if (node.value()) {
-            return db
+            return node
         }
 
         console.log('création de la guilde id : ' + guildId)
