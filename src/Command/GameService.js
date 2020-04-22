@@ -4,11 +4,7 @@ module.exports = class GameService {
     constructor(di, guild) {
         this.guild = guild
         this.db = di.db
-        this.guildDb = this.db.get('guilds').find({id: this.guild.id})
-
-        if (!this.guildDb.value().id) {
-            this._initDb()
-        }
+        this.guildDb = this.constructor.initDb(this.db, guild.id)
     }
 
     initConfig() {
@@ -26,22 +22,13 @@ module.exports = class GameService {
         }
 
         node.write()
-        // node.get('active').set(false).write()
-        // node.get('time').set('night').write()
-        // node.get('masterMemberId').set('').write()
-        // node.get('players').set([]).write()
-        // node.get('config').set({
-        //     roles: ['werewolf']
-        // }).write()
-        //
-        // node.write()
     }
 
     /**
      * Est-ce qu'une partie est en cours
      */
     isRunning() {
-        return this.guildDb.get('game').value().active === true
+        return this.guildDb.get('game').value() && this.guildDb.get('game').value().active === true
     }
 
     isDay() {
@@ -73,9 +60,21 @@ module.exports = class GameService {
         }
     }
 
-    _initDb() {
+    /**
+     * @param db
+     * @param {string} guildId
+     */
+    static initDb(db, guildId) {
+        let node = db.get('guilds').find({id: guildId})
+
+        if (node.value()) {
+            return db
+        }
+
+        console.log('création de la guilde id : ' + guildId)
+
         let defaultGuildDb = {
-            id: this.guild.id,
+            id: guildId,
             masterMemberId: null,
             game: {
                 active: false,
@@ -86,8 +85,8 @@ module.exports = class GameService {
             time: 'night'
         }
 
-        this.db.get('guilds').push(defaultGuildDb).write()
+        db.get('guilds').push(defaultGuildDb).write()
 
-        this.guildDb = this.db.get('guilds').find({id: this.guild.id})
+        return db.get('guilds').find({id: guildId})
     }
 }
