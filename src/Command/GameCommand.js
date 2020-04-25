@@ -16,16 +16,16 @@ module.exports = class GameCommand extends AbstractCommand {
         this.db = db
         this.guildDb = GameService.initDb(this.db, this.guild.id)
 
-        this.gameChannel = this.guild.channels
+        this.gameChannel = this.guild.channels.cache
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
 
-        this.wolfChannel = this.guild.channels
+        this.wolfChannel = this.guild.channels.cache
             .filter(channel => channel.name === 'loup-garous' && channel.type === 'text')
             .first()
 
-        this.players = this.guild.members
-            .filter(member => member.roles.some(role => role.name === 'jeu'))
+        this.players = this.guild.members.cache
+            .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
 
         this.roleMap = this.guildDb.get('config.roles').value().map(key => PlayerFactory.mapping()[key])
@@ -163,9 +163,9 @@ module.exports = class GameCommand extends AbstractCommand {
      * @param {Player=} player
      */
     _removeDeathRole(player) {
-        var deathRole = this.guild.roles.filter(role => role.name === 'mort').first()
+        var deathRole = this.guild.roles.cache.filter(role => role.name === 'mort').first()
 
-        var players = player ? [player] : this.players.filter(player => player.member.roles.some(role => role.name === 'mort'))
+        var players = player ? [player] : this.players.filter(player => player.member.roles.cache.some(role => role.name === 'mort'))
 
         players.forEach(player => player.member.removeRole(deathRole))
     }
@@ -176,7 +176,7 @@ module.exports = class GameCommand extends AbstractCommand {
      * @return {Promise}
      */
     initWolfChannel(wolfs) {
-        this.wolfChannel.members
+        this.wolfChannel.members.cache
             .filter(member => member.user.username !== 'WolfOfGolngaz')
             .forEach(member => {
                 this.wolfChannel.overwritePermissions(member, {READ_MESSAGES: false})
