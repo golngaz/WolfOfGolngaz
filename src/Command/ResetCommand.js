@@ -6,22 +6,22 @@ module.exports = class ResetCommand extends AbstractCommand {
     static execute(message, args, di) {
         let members = message.guild.members.filter(member => member.roles.some(role => role.name === 'jeu'))
 
-        di.get(GameService.name).end()
+        di.get(GameService).end()
 
         if (!args[0]) {
-            di.get(ResetService.name).resetMembers(members, false)
+            di.get(ResetService).resetMembers(members, false)
 
             return message.reply('Tous les joueurs sont réinitialisés')
         }
 
         if (args[0] === 'soft') {
-            di.get(ResetService.name).resetMembers(members, true)
+            di.get(ResetService).resetMembers(members, true)
 
             return message.reply('Les joueurs sont réinitialisés mais restent pour la prochaine partie')
         }
 
         if (args[0] === 'config') {
-            di.get(GameService.name).initConfig()
+            di.get(GameService).initConfig()
 
             return message.reply('La configuration à été réinitialisé')
         }

@@ -24,7 +24,7 @@ bot.on('message', function (message) {
 
     di.setGuild(message.guild)
 
-    let gameService = di.get(GameService.name, message.guild)
+    let gameService = di.get(GameService, message.guild)
 
     // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
     if (message.content.startsWith('wog ')) {

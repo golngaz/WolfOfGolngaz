@@ -14,11 +14,11 @@ module.exports = class ConfigCommand extends AbstractCommand {
 
         if (args[0] === 'roles' || args[0] === 'role') {
             args.shift()
-            return di.get(ConfigRoleService.name).handle(message, args)
+            return di.get(ConfigRoleService).handle(message, args)
         }
 
         // @todo raccourcis à supprimer ou non (selon si la config gère autre chose)
-        return di.get(ConfigRoleService.name).handle(message, args)
+        return di.get(ConfigRoleService).handle(message, args)
     }
 
     static signature() {
