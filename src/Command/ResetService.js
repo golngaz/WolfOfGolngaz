@@ -9,7 +9,7 @@ module.exports = class ResetService {
     }
 
     resetMember(member) {
-        let gameRole = member.guild.roles.filter(role => role.name === 'jeu').first()
+        let gameRole = member.guild.roles.cache.filter(role => role.name === 'jeu').first()
 
         member.removeRole(gameRole)
             .catch(console.error)
@@ -18,8 +18,8 @@ module.exports = class ResetService {
     }
 
     resetMemberSoft(member) {
-        let diedRole = member.guild.roles.filter(role => role.name === 'mort').first()
-        let mayorRole = member.guild.roles.filter(role => role.name === 'maire').first()
+        let diedRole = member.guild.roles.cache.filter(role => role.name === 'mort').first()
+        let mayorRole = member.guild.roles.cache.filter(role => role.name === 'maire').first()
 
         member.removeRole(diedRole)
             .catch(console.error)

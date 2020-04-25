@@ -4,7 +4,7 @@ const AbstractCommand = require('./AbstractCommand')
 
 module.exports = class ResetCommand extends AbstractCommand {
     static execute(message, args, di) {
-        let members = message.guild.members.filter(member => member.roles.some(role => role.name === 'jeu'))
+        let members = message.guild.members.cache.filter(member => member.roles.cache.some(role => role.name === 'jeu'))
 
         di.get(GameService.name).end()
 

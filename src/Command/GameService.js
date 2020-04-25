@@ -60,10 +60,10 @@ module.exports = class GameService {
         // @todo parcourir les joueurs et exécuter le code contenu dans les classe du rôle
         let shaman = this.guildDb.get('game').value().players.filter(player => player.roleKey === Shaman.key())[0]
         if (shaman) {
-            let memberShaman = message.guild.members
+            let memberShaman = message.guild.members.cache
                 .filter(member => member.id === shaman.memberId)
-                .filter(member => member.roles.some(role => role.name === 'jeu'))
-                .filter(member => !member.roles.some(role => role.name === 'mort'))
+                .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
+                .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
                 .first()
 
             if (memberShaman) {
