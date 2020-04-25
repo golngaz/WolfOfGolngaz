@@ -1,9 +1,10 @@
-const PlayerFactory = require('../Game/PlayerFactory')
-const CommandFactory = require('./CommandFactory')
-const AbstractCommand = require('./AbstractCommand')
+import {Message, PartialMessage} from "discord.js";
+import Di from "../Di";
+import AbstractCommand from "./AbstractCommand";
+import CommandFactory from "./CommandFactory.js";
 
-module.exports = class HelpCommand extends AbstractCommand {
-    static execute(message, args, di) {
+class HelpCommand extends AbstractCommand {
+    static execute(message: Message|PartialMessage, args: string[], di: Di) {
         if (!args[0]) {
             return this._list(message)
         }
@@ -53,3 +54,5 @@ module.exports = class HelpCommand extends AbstractCommand {
             'command -> affiche un help détaillé pour la commande'
     }
 }
+
+export = HelpCommand;

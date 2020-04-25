@@ -15,6 +15,7 @@
     "typescript": "~3.8.3"
   },
   "devDependencies": {
-    "@types/lowdb": "~1.0.9"
+    "@types/node": "^13.13.2",
+    "@types/lowdb": "1.0.7"
   }
 }

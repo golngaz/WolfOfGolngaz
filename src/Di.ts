@@ -1,4 +1,4 @@
-import {lowdb} from "lowdb";
+import {LowdbSync} from "lowdb";
 import ResetService from "./Command/ResetService.js"
 import GameService from "./Command/GameService.js"
 import ConfigRoleService from "./Command/Config/ConfigRoleService.js"
@@ -10,11 +10,11 @@ interface Constructor<T> {
 
 class Di {
     // @todo set private
-    public readonly db: lowdb;
+    public readonly db: LowdbSync<any>;
     private readonly services: object;
     private guild: string|null;
 
-    constructor(db: lowdb) {
+    constructor(db: LowdbSync<any>) {
         this.db = db
         this.services = []
         this.guild = null

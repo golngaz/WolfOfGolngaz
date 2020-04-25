@@ -1,5 +1,5 @@
 const PlayerFactory = require('../Game/PlayerFactory')
-const AbstractCommand = require('../Command/AbstractCommand')
+const AbstractCommand = require('./AbstractCommand')
 
 module.exports = class RolesCommand extends AbstractCommand {
     static execute(message, args, di) {
