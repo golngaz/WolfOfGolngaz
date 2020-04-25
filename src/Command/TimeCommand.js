@@ -24,13 +24,13 @@ module.exports = class TimeCommand extends AbstractCommand {
 
         guildDb.write()
 
-        let playerRole = message.guild.roles.filter(role => role.name === 'jeu').first()
+        let playerRole = message.guild.roles.cache.filter(role => role.name === 'jeu').first()
 
         if (time === 'night') {
             this._handleNight(message.guild)
         }
 
-        return message.guild.channels
+        return message.guild.channels.cache
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
             .send(playerRole + ' ' + this.messageAnnounce(time))
@@ -38,7 +38,7 @@ module.exports = class TimeCommand extends AbstractCommand {
 
     static _handleNight(guild) {
         // @todo finir (musique)
-        let channel = guild.channels.filter(channel => channel.name === 'commands' && channel.type === 'text').first()
+        let channel = guild.channels.cache.filter(channel => channel.name === 'commands' && channel.type === 'text').first()
 
         return channel
             .send('_play ' + config.music.night.link)

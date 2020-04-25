@@ -16,15 +16,15 @@ module.exports = class KillCommand extends AbstractCommand {
             return message.reply('Joueur ' + args[0] + ' introuvable')
         }
 
-        var gameChannel = guild.channels
+        var gameChannel = guild.channels.cache
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
 
-        var graveyard = guild.channels
+        var graveyard = guild.channels.cache
             .filter(channel => channel.name === 'cimetière' && channel.type === 'text')
             .first()
 
-        var deathRole = guild.roles.filter(role => role.name === 'mort').first()
+        var deathRole = guild.roles.cache.filter(role => role.name === 'mort').first()
 
         memberToKill.addRole(deathRole)
             .then(() => graveyard.send(memberToKill + ', tu viens de rejoindre le cimetière.. Bienvenue à toi !'))

@@ -8,14 +8,14 @@ module.exports = class KillCommand extends AbstractCommand {
     static execute(message, args) {
         var guild = message.guild;
 
-        var gameChannel = guild.channels
+        var gameChannel = guild.channels.cache
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first()
 
         // @todo voir si ya un encapsule méthode
-        var membersPolls = guild.members
-            .filter(member => member.roles.some(role => role.name === 'jeu'))
-            .filter(member => !member.roles.some(role => role.name === 'mort'))
+        var membersPolls = guild.members.cache
+            .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
+            .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
             .map(member => {
                 return member.toString()
             })
