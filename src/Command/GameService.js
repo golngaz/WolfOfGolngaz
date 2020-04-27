@@ -20,7 +20,7 @@ module.exports = class GameService {
         node.write()
     }
 
-    static initConfig() {
+    initConfig() {
         let node = this.db.get('guilds').find({id: this.guild.id})
 
         node.value().game = {
