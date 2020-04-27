@@ -20,7 +20,7 @@ module.exports = class GameService {
         node.write()
     }
 
-    initConfig() {
+    static initConfig() {
         let node = this.db.get('guilds').find({id: this.guild.id})
 
         node.value().game = {
@@ -35,6 +35,37 @@ module.exports = class GameService {
         }
 
         node.write()
+    }
+
+    /**
+     * @param db
+     * @param {string} guildId
+     */
+    static initDb(db, guildId) {
+        let node = db.get('guilds').find({id: guildId})
+
+        if (node.value()) {
+            return node
+        }
+
+        console.log('création de la guilde id : ' + guildId)
+
+        let defaultGuildDb = {
+            id: guildId,
+            game: {
+                active: false,
+                time: 'night',
+                masterMemberId: '',
+                players: [],
+            },
+            config: {
+                roles: ['werewolf', 'werewolf', 'seer']
+            }
+        }
+
+        db.get('guilds').push(defaultGuildDb).write()
+
+        return db.get('guilds').find({id: guildId})
     }
 
     /**
@@ -71,35 +102,5 @@ module.exports = class GameService {
                     .send('Mort : "*' + message.content + '*"')
             }
         }
-    }
-
-    /**
-     * @param db
-     * @param {string} guildId
-     */
-    static initDb(db, guildId) {
-        let node = db.get('guilds').find({id: guildId})
-
-        if (node.value()) {
-            return node
-        }
-
-        console.log('création de la guilde id : ' + guildId)
-
-        let defaultGuildDb = {
-            id: guildId,
-            masterMemberId: null,
-            game: {
-                active: false,
-                players: [
-
-                ]
-            },
-            time: 'night'
-        }
-
-        db.get('guilds').push(defaultGuildDb).write()
-
-        return db.get('guilds').find({id: guildId})
     }
 }
