@@ -21,10 +21,10 @@ bot.on('message', function (message) {
 
     di.setGuild(message.guild)
 
-    let gameService = di.get<GameService>(GameService, message.guild)
+    let gameService = di.get(GameService, message.guild)
 
     // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
-    if (message.content.startsWith('wog ')) {
+    if (message.content.startsWith('wog ') || message.content === 'wog') {
         CommandFactory.handle(message, di)
     } else if (gameService.isRunning()) {
         return gameService.handleMessage(message)
