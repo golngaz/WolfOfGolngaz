@@ -6,7 +6,6 @@ import Werewolf from "../Game/Werewolf.js";
 import SimpleVillager from "../Game/SimpleVillager.js";
 import PlayerFactory from "../Game/PlayerFactory.js";
 import {Guild, Message, PartialMessage, TextChannel, User} from "discord.js";
-import {lowdb} from "lowdb";
 import Di from "../Di";
 
 class GameCommand extends AbstractCommand {
@@ -14,20 +13,20 @@ class GameCommand extends AbstractCommand {
     private message: Message|PartialMessage;
     private guild: Guild;
     private gameMaster: User;
-    private db: lowdb;
+    private db: any; // @fixme real type
     private guildDb: any; // @fixme real type
     private gameChannel: TextChannel;
     private wolfChannel: TextChannel;
     private players: Player[];
     public roleMap: any; // @fixme real type // @todo private
 
-    constructor(message, db) {
+    constructor(message: Message|PartialMessage, guild: Guild, author: User, db: any) {
         super();
         this.error = '';
 
         this.message = message;
-        this.guild = message.guild;
-        this.gameMaster = message.author;
+        this.guild = guild;
+        this.gameMaster = author;
         this.db = db;
         this.guildDb = GameService.initDb(this.db, this.guild.id);
 
@@ -46,11 +45,15 @@ class GameCommand extends AbstractCommand {
             .map(member => new NoRole(member))
         ;
 
-        this.roleMap = this.guildDb.get('config.roles').value().map(key => PlayerFactory.mapping()[key]);
+        this.roleMap = this.guildDb.get('config.roles').value().map((key: string) => PlayerFactory.mapping()[key]);
     }
 
-    static execute(message: Message|PartialMessage, args: string[], di: Di) {
-        let game = new this(message, di.db);
+    static execute(message: Message|PartialMessage, args: string[], di: Di): Promise<any> {
+        if (!message.guild || !message.author) {
+            return Promise.reject();
+        }
+
+        let game = new this(message, message.guild, message.author, di.db);
 
         return game.init().catch(console.error);
     }
@@ -58,26 +61,25 @@ class GameCommand extends AbstractCommand {
     /**
      * @return {Promise}
      */
-    init() {
-        this.gameMaster.send('Init de la partie..');
-
+    async init() {
         if (!this.canPlay()) {
-            return this.message.reply(this.error);
+            return this.message.reply?.(this.error);
         }
 
-        this._completeRoleMap();
+        this.gameMaster.send('Init de la partie..')
+
+        this._completeRoleMap()
 
         let players = this.players.slice();
         this.players = [];
 
-        this.roleMap.forEach(roleClass => {
+        this.roleMap.forEach((roleClass: Player) => {
             let randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0];
 
-            this.players.push(roleClass.fromPlayer(randomPlayer));
+            this.players.push((<any>roleClass).fromPlayer(randomPlayer));
         });
 
-
-        this._notifyPlayersRole();
+        await this._notifyPlayersRole();
 
         this._saveGame();
 
@@ -88,11 +90,11 @@ class GameCommand extends AbstractCommand {
     }
 
     _saveGame() {
-        let playersData = [];
+        let playersData: object[] = [];
         this.players.forEach(player => {
             playersData.push({
                 memberId: player.member.id,
-                roleKey: player.constructor.key(),
+                roleKey: (<any>player.constructor).key(),
                 data: {}
             })
         });
@@ -186,7 +188,7 @@ class GameCommand extends AbstractCommand {
 
         var players = player ? [player] : this.players.filter(player => player.member.roles.cache.some(role => role.name === 'mort'));
 
-        players.forEach(player => player.member.removeRole(deathRole));
+        players.forEach(player => player.member.roles.remove(deathRole));
     }
 
     /**

@@ -1,7 +1,9 @@
-import {LowdbSync} from "lowdb";
-import ResetService from "./Command/ResetService.js"
-import GameService from "./Command/GameService.js"
-import ConfigRoleService from "./Command/Config/ConfigRoleService.js"
+import {AdapterSync, LowdbSync} from 'lowdb';
+import ResetService from './Command/ResetService.js'
+import GameService from './Command/GameService.js'
+import ConfigRoleService from './Command/Config/ConfigRoleService.js'
+import { Guild } from 'discord.js';
+import FileSync from "lowdb/adapters/FileSync";
 
 interface Constructor<T> {
     new (...args: any[]): T
@@ -10,11 +12,11 @@ interface Constructor<T> {
 
 class Di {
     // @todo set private
-    public readonly db: LowdbSync<any>;
+    public readonly db: any;
     private readonly services: object;
-    private guild: string|null;
+    private guild: Guild|null;
 
-    constructor(db: LowdbSync<any>) {
+    constructor(db: any) {
         this.db = db
         this.services = []
         this.guild = null
@@ -22,7 +24,7 @@ class Di {
         this.initServices()
     }
 
-    setGuild(guild: string): void {
+    setGuild(guild: Guild): void {
         this.guild = guild
     }
 

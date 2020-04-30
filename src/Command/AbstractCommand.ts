@@ -2,7 +2,7 @@ import {Message, PartialMessage} from 'discord.js';
 import Di from "../Di";
 
 class AbstractCommand {
-    static execute(message: Message|PartialMessage, args: string[], di: Di) {
+    static execute(message: Message|PartialMessage, args: string[], di: Di): Promise<any> | null {
         throw Error('To implement')
     }
 

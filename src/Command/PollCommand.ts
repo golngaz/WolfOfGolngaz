@@ -18,9 +18,7 @@ class PollCommand extends AbstractCommand {
         const membersPolls = guild.members.cache
             .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
-            .map(member => {
-                return member.toString()
-            })
+            .map(member => member.toString())
             .join('" "')
         ;
 

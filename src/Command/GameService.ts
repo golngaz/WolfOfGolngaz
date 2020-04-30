@@ -1,10 +1,17 @@
-const Shaman = require('../Game/Shaman')
+import Shaman from '../Game/Shaman'
+import Di from '../Di';
+import {Guild} from 'discord.js';
+import Lowdb, {LoDashExplicitSyncWrapper, LowdbSync} from "lowdb";
 
-module.exports = class GameService {
-    constructor(di, guild) {
+export default class GameService {
+    private guild: Guild;
+    private db: any;
+    private guildDb: any;
+
+    constructor(di: Di, guild: Guild) {
         this.guild = guild
         this.db = di.db
-        this.guildDb = this.constructor.initDb(this.db, guild.id)
+        this.guildDb = GameService.initDb(this.db, guild.id)
     }
 
     end() {
@@ -37,11 +44,7 @@ module.exports = class GameService {
         node.write()
     }
 
-    /**
-     * @param db
-     * @param {string} guildId
-     */
-    static initDb(db, guildId) {
+    static initDb(db: any, guildId: string): LoDashExplicitSyncWrapper<any> {
         let node = db.get('guilds').find({id: guildId})
 
         if (node.value()) {

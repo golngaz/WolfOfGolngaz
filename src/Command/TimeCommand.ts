@@ -1,9 +1,7 @@
 import AbstractCommand from "./AbstractCommand";
 import {Message, PartialMessage, TextChannel} from "discord.js";
 import Di from "../Di";
-
-// @fixme does it works ???
-const config = require('../../config');
+import config from '../../config.json';
 
 class TimeCommand extends AbstractCommand {
     static execute(message: Message|PartialMessage, args: string[], di: Di) {

@@ -1,3 +1,11 @@
 {
-  "botToken": ""
+  "botToken": "",
+  "music": {
+    "night": {
+      "link": ""
+    },
+    "day": {
+      "link": ""
+    }
+  }
 }

@@ -1,13 +1,10 @@
-const AbstractCommand = require('../AbstractCommand')
-const ConfigRoleService = require('./ConfigRoleService')
+import {Message} from "discord.js";
+import Di from "../../Di";
+import ConfigRoleService from "./ConfigRoleService";
+import AbstractCommand from "../AbstractCommand";
 
-module.exports = class ConfigCommand extends AbstractCommand {
-    static execute(message, args, di) {
-        let config = di.db.get('guilds')
-            .find({id: message.guild.id})
-            .get('config')
-            .value()
-
+export default class ConfigCommand extends AbstractCommand {
+    static execute(message: Message, args: string[], di: Di) {
         if (!args[0]) {
             return message.reply('Vous devez préciser le noeud de la config')
         }

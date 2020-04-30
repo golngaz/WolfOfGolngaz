@@ -1,17 +1,16 @@
-const Player = require('./Player')
-const Angel = require('./Angel')
-const Beggars = require('./Beggars')
-const Cupid = require('./Cupid')
-const Fox = require('./Fox')
-const Hunter = require('./Hunter')
-const Saving = require('./Saving')
-const Seer = require('./Seer')
-const Shaman = require('./Shaman')
-const SimpleVillager = require('./SimpleVillager')
-const Werewolf = require('./Werewolf')
-const Witch = require('./Witch')
+import Player from './Player'
+import Angel from './Angel'
+import Cupid from './Cupid'
+import Fox from './Fox'
+import Hunter from './Hunter'
+import Saving from './Saving'
+import Seer from './Seer'
+import Shaman from './Shaman'
+import SimpleVillager from './SimpleVillager'
+import Werewolf from './Werewolf'
+import Witch from './Witch'
 
-module.exports = class PlayerFactory extends Player {
+export default class PlayerFactory extends Player {
 
     /**
      * @return {object}
@@ -20,7 +19,6 @@ module.exports = class PlayerFactory extends Player {
         let mapping = {}
 
         mapping[Angel.key()] = Angel
-        mapping[Beggars.key()] = Beggars
         mapping[Cupid.key()] = Cupid
         mapping[Fox.key()] = Fox
         mapping[Hunter.key()] = Hunter

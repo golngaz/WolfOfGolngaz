@@ -1,5 +1,7 @@
-module.exports = class ResetService {
-    resetMembers(members, soft = false) {
+import {GuildMember} from "discord.js";
+
+export default class ResetService {
+    resetMembers(members: GuildMember[], soft = false) {
         if (soft) {
             members.forEach(member => this.resetMemberSoft(member))
             return
@@ -17,14 +19,14 @@ module.exports = class ResetService {
         this.resetMemberSoft(member)
     }
 
-    resetMemberSoft(member) {
+    resetMemberSoft(member: GuildMember) {
         let diedRole = member.guild.roles.cache.filter(role => role.name === 'mort').first()
         let mayorRole = member.guild.roles.cache.filter(role => role.name === 'maire').first()
 
-        member.removeRole(diedRole)
+        member.roles.remove(diedRole)
             .catch(console.error)
 
-        member.removeRole(mayorRole)
+        member.roles.remove(mayorRole)
             .catch(console.error)
 
         // @todo déplacer les membres dans un autre salon
