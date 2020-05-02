@@ -13,7 +13,7 @@ export default class ResetService {
     resetMember(member) {
         let gameRole = member.guild.roles.cache.filter(role => role.name === 'jeu').first()
 
-        member.removeRole(gameRole)
+        member.roles.remove(gameRole)
             .catch(console.error)
 
         this.resetMemberSoft(member)

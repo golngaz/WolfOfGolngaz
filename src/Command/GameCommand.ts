@@ -121,7 +121,7 @@ class GameCommand extends AbstractCommand {
         let recapGameMaster = '';
         this.players.forEach(player => {
             player.send('Tu es ' + player.label() + ' !');
-            recapGameMaster += player.member + ' est **' + player.label() + '**\n';
+            recapGameMaster += player.member.toString() + ' est **' + player.label() + '**\n';
         });
 
         return this.gameMaster.send(recapGameMaster);
@@ -210,7 +210,7 @@ class GameCommand extends AbstractCommand {
         wolfs.forEach(wolf => {
             addPermissions.push(
                 this.wolfChannel.createOverwrite(wolf.member.user, {VIEW_CHANNEL: true})
-                    .then(() => this.wolfChannel.send('Bienvenue chez les loups ' + wolf.member))
+                    .then(() => this.wolfChannel.send('Bienvenue chez les loups ' + wolf.member.toString()))
                     .catch(console.error)
             )
         });

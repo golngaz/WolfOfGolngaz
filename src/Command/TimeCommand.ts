@@ -1,7 +1,8 @@
 import AbstractCommand from "./AbstractCommand";
-import {Message, PartialMessage, TextChannel} from "discord.js";
+import {GuildMember, Message, PartialMessage, TextChannel} from "discord.js";
 import Di from "../Di";
 import config from '../../config.json';
+import GameService from "./GameService";
 
 class TimeCommand extends AbstractCommand {
     static execute(message: Message|PartialMessage, args: string[], di: Di) {
@@ -9,7 +10,7 @@ class TimeCommand extends AbstractCommand {
             return message.reply('vous devez préciser day/night');
         }
 
-        const time = args[0];
+        const time = args.shift();
 
         const guildDb = di.db.get('guilds').find({id: message.guild.id});
 
@@ -34,11 +35,18 @@ class TimeCommand extends AbstractCommand {
             this._handleNight(message.guild);
         }
 
+        let deadMember = args.shift();
+        if (deadMember) {
+            let memberToKill = message.guild.member(message.mentions.users.first());
+            di.get(GameService).kill(message, memberToKill, time === 'night' ? 'Pendu par le village' : 'Mort pendant la nuit');
+        }
+
+        // @todo mieux gérer le player role mainteant que la mise à jour est faite
         return (
             message.guild.channels.cache
                 .filter(channel => channel.name === 'village' && channel.type === 'text')
                 .first() as TextChannel
-        ).send(playerRole + ' ' + this.messageAnnounce(time));
+        ).send(playerRole.toString() + ' ' + this.messageAnnounce(time));
     }
 
     static _handleNight(guild) {

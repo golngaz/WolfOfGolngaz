@@ -1,7 +1,8 @@
 import Shaman from '../Game/Shaman'
 import Di from '../Di';
-import {Guild} from 'discord.js';
+import {Guild, GuildMember, Message, PartialMessage, TextChannel} from 'discord.js';
 import Lowdb, {LoDashExplicitSyncWrapper, LowdbSync} from "lowdb";
+import PlayerFactory from "../Game/PlayerFactory";
 
 export default class GameService {
     private guild: Guild;
@@ -42,6 +43,46 @@ export default class GameService {
         }
 
         node.write()
+    }
+
+    kill(message: Message|PartialMessage, memberToKill: GuildMember, reason?: string): Promise<any> {
+        if (!memberToKill) {
+            return message.reply('Joueur introuvable');
+        }
+
+        const gameChannel = this.guild.channels.cache
+            .filter(channel => channel.name === 'village' && channel.type === 'text')
+            .first() as TextChannel
+        ;
+
+        const graveyard = this.guild.channels.cache
+            .filter(channel => channel.name === 'cimetière' && channel.type === 'text')
+            .first() as TextChannel
+        ;
+
+        const deathRole = this.guild.roles.cache.filter(role => role.name === 'mort').first();
+
+        memberToKill.roles.add(deathRole)
+            .then(() => graveyard.send(memberToKill + ', tu viens de rejoindre le cimetière.. Bienvenue à toi !'))
+            .catch(error => {
+                message.reply('le rôle n\'a pas pû être ajouté ! Le bot n\'a peu être pas les droits');
+
+                console.error(error);
+            })
+
+        reason = reason ? '(Raison : **'+reason+'**)' : '';
+
+        // @fixme ??
+        // @ts-ignore
+        let memberDb = this.db.get('guilds').find({id: message.guild.id}).get('game.players').find({memberId: memberToKill.id}).value();
+
+        if (!memberDb) {
+            return message.reply('Le joueur n\'a pas été trouvé dans la partie');
+        }
+
+        let player = PlayerFactory.get(memberDb.roleKey, memberToKill);
+
+        return gameChannel.send('Le joueur ' + memberToKill.toString() + ', qui était "**' + player.label() + '**" est mort.. Rip ' + reason);
     }
 
     static initDb(db: any, guildId: string): LoDashExplicitSyncWrapper<any> {

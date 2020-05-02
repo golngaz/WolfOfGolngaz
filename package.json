@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "mkdir dist || rm -r dist && tsc",
-    "start": "npm run build && node dist/src/main.js"
+    "start": "npm run build && node dist/src/main.js",
+    "startWindows": "tsc && node dist/src/main.js"
   },
   "author": "",
   "license": "ISC",
