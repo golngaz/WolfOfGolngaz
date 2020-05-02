@@ -63,7 +63,7 @@ export default class GameService {
         const deathRole = this.guild.roles.cache.filter(role => role.name === 'mort').first();
 
         memberToKill.roles.add(deathRole)
-            .then(() => graveyard.send(memberToKill + ', tu viens de rejoindre le cimetière.. Bienvenue à toi !'))
+            .then(() => graveyard.send(memberToKill.toString() + ', tu viens de rejoindre le cimetière.. Bienvenue à toi !'))
             .catch(error => {
                 message.reply('le rôle n\'a pas pû être ajouté ! Le bot n\'a peu être pas les droits');
 
