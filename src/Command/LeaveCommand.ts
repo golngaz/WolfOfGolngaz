@@ -10,7 +10,7 @@ class LeaveCommand extends AbstractCommand {
             .catch(console.error)
         ;
 
-        return message.reply(message.author + ' tu as quitté la prochaine partie');
+        return message.reply(message.author.toString() + ' tu as quitté la prochaine partie');
     }
 
     static help() {
