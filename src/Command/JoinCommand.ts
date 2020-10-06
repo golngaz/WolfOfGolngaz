@@ -10,7 +10,7 @@ class JoinCommand extends AbstractCommand {
             .catch(console.error)
         ;
 
-        return message.reply(message.author + ' tu as rejoint la prochaine partie');
+        return message.reply('Tu as rejoint la prochaine partie');
     }
 
     static help() {

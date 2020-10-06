@@ -115,15 +115,15 @@ export default class GameService {
     /**
      * Est-ce qu'une partie est en cours
      */
-    isRunning() {
+    isRunning(): boolean {
         return this.guildDb.get('game').value() && this.guildDb.get('game').value().active === true
     }
 
-    isDay() {
+    isDay(): boolean {
         return this.guildDb.get('game').value().time === 'day'
     }
 
-    isNight() {
+    isNight(): boolean {
         return this.guildDb.get('game').value().time === 'night'
     }
 

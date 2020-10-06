@@ -72,7 +72,7 @@ class TimeCommand extends AbstractCommand {
     }
 
     static signature() {
-        return '[day|night]';
+        return '{day|night} [memberToKill]';
     }
 
     static help() {
