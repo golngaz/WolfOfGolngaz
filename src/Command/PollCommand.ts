@@ -14,15 +14,20 @@ class PollCommand extends AbstractCommand {
             .first() as TextChannel
         ;
 
+        let maxPoll = 19;
+
         // @todo voir si ya un encapsule méthode
+        // @todo essayer d'ajouter une fonction chunck dans le prototype de Array
         const membersPolls = guild.members.cache
             .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
             .map(member => member.toString())
-            .join('" "')
+            .map((member, index: number) => membersPolls.slice(index * maxPoll, (index * maxPoll) + maxPoll))
+            .filter(chunk => chunk.length > 0)
+            .forEach(chunk => gameChannel.send('/poll "Voter pour éliminer.." "' + chunk.join('" "') + '"'))
         ;
 
-        return gameChannel.send('/poll "Voter pour éliminer.." "' + membersPolls + '"');
+        return Promise.resolve();
     }
 
     static help() {
