@@ -138,7 +138,7 @@ class GameCommand extends AbstractCommand {
         }
 
         if (this.hasOffline()) {
-            this.error = 'Certains joueurs sont déconnectés';
+            this.error = 'Certains joueurs sont déconnectés : ' + this.hasOffline()[0];
 
             return false;
         }
@@ -162,7 +162,7 @@ class GameCommand extends AbstractCommand {
      * @return {boolean}
      */
     hasOffline() {
-        return this.players.some(player => player.member.presence.status === 'offline');
+        return this.players.filter(player => player.member.presence.status === 'offline');
     }
 
     /**
