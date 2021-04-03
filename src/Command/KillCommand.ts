@@ -14,7 +14,7 @@ class KillCommand extends AbstractCommand {
 
         let reason = args.shift();
 
-        di.get(GameService).kill(message, memberToKill, reason);
+        return di.get(GameService).kill(message, memberToKill, reason);
     }
 
     static signature() {
