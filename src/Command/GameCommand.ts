@@ -137,13 +137,6 @@ class GameCommand extends AbstractCommand {
             return false;
         }
 
-        if (this.hasOffline()) {
-            console.debug(this.hasOffline())
-            this.error = 'Certains joueurs sont déconnectés : ' + this.hasOffline()[0].toString();
-
-            return false;
-        }
-
         if (!this.wolfChannel) {
             this.error = 'Salon des loups introuvable';
 
