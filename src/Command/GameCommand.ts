@@ -138,7 +138,7 @@ class GameCommand extends AbstractCommand {
         }
 
         if (this.hasOffline()) {
-            this.error = 'Certains joueurs sont déconnectés : ' + this.hasOffline()[0];
+            this.error = 'Certains joueurs sont déconnectés : ' + this.hasOffline()[0].toString();
 
             return false;
         }
