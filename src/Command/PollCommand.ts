@@ -21,7 +21,9 @@ class PollCommand extends AbstractCommand {
         const membersPolls = guild.members.cache
             .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
-            .map(member => member.toString())
+            .map(member => member.toString());
+
+        membersPolls
             .map((member, index: number) => membersPolls.slice(index * maxPoll, (index * maxPoll) + maxPoll))
             .filter(chunk => chunk.length > 0)
             .forEach(chunk => gameChannel.send('/poll "Voter pour éliminer.." "' + chunk.join('" "') + '"'))
