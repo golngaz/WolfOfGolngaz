@@ -8,6 +8,9 @@ import PlayerFactory from "../Game/PlayerFactory.js";
 import {Guild, Message, PartialMessage, TextChannel, User} from "discord.js";
 import Di from "../Di";
 
+/**
+ * @todo renommer en StartCommand
+ */
 class GameCommand extends AbstractCommand {
     private error: string;
     private message: Message|PartialMessage;
@@ -18,9 +21,10 @@ class GameCommand extends AbstractCommand {
     private gameChannel: TextChannel;
     private wolfChannel: TextChannel;
     private players: Player[];
-    public roleMap: any; // @fixme real type // @todo private
+    public roleMap: Array<typeof Player>
+    private gameService: GameService;
 
-    constructor(message: Message|PartialMessage, guild: Guild, author: User, db: any) {
+    constructor(message: Message|PartialMessage, guild: Guild, author: User, db: any, gameService: GameService) {
         super();
         this.error = '';
 
@@ -29,31 +33,31 @@ class GameCommand extends AbstractCommand {
         this.gameMaster = author;
         this.db = db;
         this.guildDb = GameService.initDb(this.db, this.guild.id);
+        this.gameService = gameService
 
         this.gameChannel = this.guild.channels.cache
             .filter(channel => channel.name === 'village' && channel.type === 'text')
             .first() as TextChannel
         ;
 
-        this.wolfChannel = this.guild.channels.cache
-            .filter(channel => channel.name === 'loup-garous' && channel.type === 'text')
-            .first() as TextChannel
-        ;
+        this.wolfChannel = this.gameService.wolfChannel();
 
         this.players = this.guild.members.cache
             .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
         ;
 
-        this.roleMap = this.guildDb.get('config.roles').value().map((key: string) => PlayerFactory.mapping()[key]);
+        this.roleMap = this.gameService.roleMap();
     }
 
-    static execute(message: Message|PartialMessage, args: string[], di: Di): Promise<any> {
-        if (!message.guild || !message.author) {
+    static async execute(message: Message | PartialMessage, args: string[], di: Di): Promise<any> {
+        if (!message.guild || !message.author) {
             return Promise.reject();
         }
 
-        let game = new this(message, message.guild, message.author, di.db);
+        di.get(GameService).fetch()
+
+        let game = new this(message, message.guild, message.author, di.db, di.get(GameService));
 
         return game.init().catch(console.error);
     }
@@ -73,10 +77,10 @@ class GameCommand extends AbstractCommand {
         let players = this.players.slice();
         this.players = [];
 
-        this.roleMap.forEach((roleClass: Player) => {
+        this.roleMap.forEach((roleClass: typeof Player) => {
             let randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0];
 
-            this.players.push((<any>roleClass).fromPlayer(randomPlayer));
+            this.players.push(roleClass.fromPlayer(randomPlayer));
         });
 
         await this._notifyPlayersRole();
@@ -137,6 +141,15 @@ class GameCommand extends AbstractCommand {
             return false;
         }
 
+        // @todo fixme la présence des joueurs est toujours offline maintenant
+        // if (this.offlinePlayers()) {
+        //     // @todo afficher la liste
+        //     console.error(this.offlinePlayers().map(player => player.member.presence.status))
+        //     this.error = 'Certains joueurs sont déconnectés : ' + this.offlinePlayers().map(player => player.member);
+        //
+        //     return false;
+        // }
+
         if (!this.wolfChannel) {
             this.error = 'Salon des loups introuvable';
 
@@ -155,7 +168,7 @@ class GameCommand extends AbstractCommand {
     /**
      * @return {boolean}
      */
-    hasOffline() {
+    offlinePlayers() {
         return this.players.filter(player => player.member.presence.status === 'offline');
     }
 
@@ -190,14 +203,8 @@ class GameCommand extends AbstractCommand {
      *
      * @return {Promise}
      */
-    initWolfChannel(wolfs) {
-        this.wolfChannel.members
-            .filter(member => member.user.username !== 'WolfOfGolngaz')
-            .forEach(member => {
-                this.wolfChannel.createOverwrite(member, {VIEW_CHANNEL: false})
-                    .catch(console.error)
-            })
-        ;
+    async initWolfChannel(wolfs) {
+        await this.gameService.resetWolfChannel()
 
         let addPermissions = [];
 
@@ -211,7 +218,7 @@ class GameCommand extends AbstractCommand {
 
         return Promise.all(addPermissions)
             .then(() => this.wolfChannel.send('Vous êtes des loups, vous devez manger des gens la nuit ! Interdiction d\'utiliser ce canal la nuit (le mj surveille !!)'))
-        ;
+            ;
     }
 }
 

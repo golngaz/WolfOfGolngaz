@@ -9,13 +9,11 @@ import Shaman from './Shaman'
 import SimpleVillager from './SimpleVillager'
 import Werewolf from './Werewolf'
 import Witch from './Witch'
+import {GuildMember} from "discord.js";
 
 export default class PlayerFactory extends Player {
 
-    /**
-     * @return {object}
-     */
-    static mapping() {
+    static mapping(): Object {
         let mapping = {}
 
         mapping[Angel.key()] = Angel
@@ -32,11 +30,7 @@ export default class PlayerFactory extends Player {
         return mapping
     }
 
-    /**
-     * @param {string} roleKey
-     * @param {GuildMember=} member
-     */
-    static get(roleKey, member) {
+    static get(roleKey: string, member: GuildMember|null): Player | null{
         let roleClass = this.mapping()[roleKey]
         if (roleClass) {
             return new roleClass(member)

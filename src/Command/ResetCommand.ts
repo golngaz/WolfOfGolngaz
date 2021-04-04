@@ -5,11 +5,16 @@ import GameService from './GameService.js';
 import Di from "../Di";
 
 class ResetCommand extends AbstractCommand {
-    static execute(message: Message|PartialMessage, args: string[], di: Di) {
-        const members = message.guild.members.cache.filter(member => member.roles.cache.some(role => role.name === 'jeu'));
+    static async execute(message: Message | PartialMessage, args: string[], di: Di) {
+        await di.get(GameService).fetch()
 
-        // @ts-ignore : delete when GameService will be migrated
-        di.get(GameService).end();
+        let gameRole = message.guild.roles.cache.filter(role => role.name === 'jeu').first()
+
+        const members = gameRole.members
+
+        let gameService: GameService = di.get(GameService);
+
+        await gameService.end().then(() => console.log('game ended'));
 
         if (!args[0]) {
             // @ts-ignore : delete when GameService will be migrated

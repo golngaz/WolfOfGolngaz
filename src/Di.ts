@@ -28,8 +28,12 @@ class Di {
         this.guild = guild
     }
 
+    getGuild(): Guild|null {
+        return this.guild
+    }
+
     initServices(): void {
-        this.set(ResetService, () => new ResetService());
+        this.set(ResetService, (di: Di) => new ResetService(new GameService(di, this.guild)));
         this.set(GameService, (di: Di) => new GameService(di, this.guild));
         this.set(ConfigRoleService, (di: Di) => new ConfigRoleService(di, this.guild));
     }

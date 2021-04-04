@@ -1,5 +1,6 @@
 import AbstractCommand from "./AbstractCommand";
 import GameCommand from "./GameCommand";
+import GameService from "./GameService";
 
 class ListCommand extends AbstractCommand {
     /**
@@ -8,10 +9,7 @@ class ListCommand extends AbstractCommand {
      * @param {Di} di
      */
     static execute(message, args, di) {
-        // @todo utiliser la db maintenant directement
-        var game = new GameCommand(message, message.guild, message.author, di.db);
-
-        message.reply(game.roleMap.map(roleClass => (new roleClass()).label()).join(', '));
+        message.reply(di.get(GameService).roleMap().join(', '));
 
         return Promise.resolve();
     }

@@ -5,6 +5,7 @@ import GameService from './Command/GameService';
 import Di from './Di';
 import FileSync from 'lowdb/adapters/FileSync';
 import Lowdb from "lowdb";
+import ResetService from "./Command/ResetService";
 
 const db = Lowdb(new FileSync('db.json'))
 const bot = new Discord.Client()
@@ -31,11 +32,15 @@ bot.on('message', function (message) {
     }
 })
 
-// @todo rajouter une condition vérifiant qu'aucune game n'est en cours
-// bot.on('presenceUpdate', function (oldMember, newMember) {
+// @todo ne fonctionne pas...
+// bot.on('presenceUpdate', function (oldPresence, presence) {
+//     if (oldPresence.status !== 'offline' && presence.status === 'offline' && presence.member) {
 //
-//     if (newMember.presence.status === 'offline') {
-//         di.get(ResetService.name).resetMember(newMember)
+//         di.setGuild(presence.member.guild);
+//
+//         if (!di.get(GameService).isRunning()) {
+//             di.get(ResetService).resetMember(presence.member)
+//         }
 //     }
 // })
 

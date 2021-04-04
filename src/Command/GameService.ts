@@ -1,8 +1,9 @@
 import Shaman from '../Game/Shaman'
 import Di from '../Di';
-import {Guild, GuildMember, Message, PartialMessage, TextChannel} from 'discord.js';
+import {Guild, GuildChannel, GuildMember, Message, PartialMessage, TextChannel} from 'discord.js';
 import Lowdb, {LoDashExplicitSyncWrapper, LowdbSync} from "lowdb";
 import PlayerFactory from "../Game/PlayerFactory";
+import Player from "../Game/Player";
 
 export default class GameService {
     private guild: Guild;
@@ -15,7 +16,8 @@ export default class GameService {
         this.guildDb = GameService.initDb(this.db, guild.id)
     }
 
-    end() {
+    end(): Promise<GuildChannel[]> {
+        // @todo calculer la fin de la partie à chaque mort sur la commande kill ou night ?
         let node = this.db.get('guilds').find({id: this.guild.id})
 
         node.value().game = {
@@ -26,6 +28,14 @@ export default class GameService {
         }
 
         node.write()
+
+        return this.resetWolfChannel()
+    }
+
+    wolfChannel(): TextChannel {
+        return this.guild.channels.cache
+            .filter(channel => channel.name === 'loup-garous' && channel.type === 'text')
+            .first() as TextChannel
     }
 
     initConfig() {
@@ -103,6 +113,7 @@ export default class GameService {
                 players: [],
             },
             config: {
+                joins: [],
                 roles: ['werewolf', 'werewolf', 'seer']
             }
         }
@@ -146,5 +157,70 @@ export default class GameService {
                     .send('Mort : "*' + message.content + '*"')
             }
         }
+    }
+
+    roleMap(): Array<typeof Player> {
+        return this.guildDb.get('config.roles').value().map((key: string) => PlayerFactory.mapping()[key])
+    }
+
+    async resetWolfChannel(): Promise<GuildChannel[]> {
+        let promises = [];
+        let channel = this.wolfChannel();
+
+        channel.permissionOverwrites
+            .filter(permission => permission.type === 'member')
+            .forEach(permission => promises.push(permission.delete()))
+
+        return await Promise.all<GuildChannel>(promises)
+    }
+
+
+
+    /**
+     * Return list id of joins players user id
+     */
+    joins(): Array<string> {
+        let joins = this.db.get('guilds').find({id: this.guild.id}).get('config.joins').value();
+
+        if (!joins || joins.length === 0) {
+            return [];
+        }
+
+        return joins;
+    }
+
+    resetJoins() {
+        let nodeConfig = this.db.get('guilds').find({id: this.guild.id}).get('config');
+
+        nodeConfig.value().joins = [];
+
+        nodeConfig.write();
+    }
+
+    leave(member: GuildMember): Promise<void|GuildMember> {
+        let gameRole = member.guild.roles.cache.filter(role => role.name === 'jeu').first()
+
+        let nodeConfig = this.db.get('guilds').find({id: this.guild.id}).get('config');
+        nodeConfig.value().joins = nodeConfig.value().joins.filter(id => id !== member.user.id)
+        nodeConfig.write()
+
+        return member.roles.remove(gameRole)
+            .catch(console.error)
+    }
+
+    /**
+     * Put players joins the game in cache
+     */
+    async fetch() {
+        await this.guild.roles.fetch()
+
+        await this.guild.members.fetch({user: this.joins()})
+            .then(members => console.log('fetching users : ' + members.map(member => member.user.username).join(', ')))
+            .catch(error => {
+                console.error('error on fetching members');
+
+                console.error(error);
+            })
+        ;
     }
 }

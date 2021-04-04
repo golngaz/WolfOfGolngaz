@@ -1,16 +1,13 @@
 import {Message, PartialMessage} from "discord.js";
 import Di from "../Di";
 import AbstractCommand from "./AbstractCommand";
+import ResetService from "./ResetService";
 
 class LeaveCommand extends AbstractCommand {
-    static execute(message: Message|PartialMessage, args: string[], di: Di) {
-        const gameRole = message.guild.roles.cache.filter(role => role.name === 'jeu').first();
+    static async execute(message: Message | PartialMessage, args: string[], di: Di) {
+        await di.get(ResetService).resetMember(message.member)
 
-        message.guild.member(message.author).roles.remove(gameRole)
-            .catch(console.error)
-        ;
-
-        return message.reply(message.author.toString() + ' tu as quitté la prochaine partie');
+        return message.author.send('Tu as quitté la prochaine partie');
     }
 
     static help() {

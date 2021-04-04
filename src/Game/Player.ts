@@ -37,7 +37,7 @@ export default class Player {
         return new this(player.member);
     }
 
-    send(message?: StringResolvable, options?: MessageOptions | (MessageOptions & { split?: false }) | MessageAdditions): Promise<Message> {
+    send(message?: StringResolvable, options?: MessageOptions): Promise<Message | Message[]> {
         return this.member.send(message, options);
     }
 }
