@@ -5,7 +5,6 @@ import GameService from './Command/GameService';
 import Di from './Di';
 import FileSync from 'lowdb/adapters/FileSync';
 import Lowdb from "lowdb";
-import ResetService from "./Command/ResetService";
 
 const db = Lowdb(new FileSync('db.json'))
 const bot = new Discord.Client()
@@ -24,8 +23,10 @@ bot.on('message', function (message) {
 
     let gameService = di.get(GameService, message.guild)
 
+    let command = message.content.toLowerCase();
+
     // garde fou permettant d'éviter le chargement de dépendances uniquement pour chaque message recu
-    if (message.content.startsWith('wog ') || message.content === 'wog') {
+    if (command.startsWith('wog ') || command === 'wog') {
         CommandFactory.handle(message, di)
     } else if (gameService.isRunning()) {
         return gameService.handleMessage(message)

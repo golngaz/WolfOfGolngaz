@@ -39,7 +39,7 @@ export default class CommandFactory {
     }
 
     static handle(message: Message|PartialMessage, di: Di): void {
-        let args = message.content.split(' ');
+        let args = message.content.toLowerCase().split(' ');
 
         if (args.shift() === 'wog') {
             CommandFactory.handleCommand(di, message, args)
