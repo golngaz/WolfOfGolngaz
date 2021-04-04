@@ -54,7 +54,7 @@ class TimeCommand extends AbstractCommand {
         let channel = guild.channels.cache.filter(channel => channel.name === 'commands' && channel.type === 'text').first();
 
         return channel
-            .send('_play ' + config.music.night.link);
+            .send('`_play ' + config.music.night.link + '`');
     }
 
     static _translate(key) {
