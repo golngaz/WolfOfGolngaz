@@ -14,41 +14,33 @@ import ListCommand from "./ListCommand";
 import RolesCommand from "./RolesCommand";
 import ConfigCommand from "./Config/ConfigCommand";
 import RecapCommand from "./RecapCommand";
+import AbstractCommand from "./AbstractCommand";
+
+interface Mapping {
+    [key: string]: typeof AbstractCommand
+}
 
 export default class CommandFactory {
 
-    private static commandList(): any {
+    public static list(): Mapping {
         return {
-            help: () => HelpCommand,
-            join: () => JoinCommand,
-            leave: () => LeaveCommand,
-            list: () => ListCommand,
-            roles: () => RolesCommand,
-            config: () => ConfigCommand,
+            help: HelpCommand,
+            join: JoinCommand,
+            leave: LeaveCommand,
+            list: ListCommand,
+            roles: RolesCommand,
+            config: ConfigCommand,
 
             // mj
-            debug: () => DebugCommand,
-            start: () => GameCommand,
-            kill: () => KillCommand,
-            poll: () => PollCommand,
-            reset: () => ResetCommand,
-            time: () => TimeCommand,
-            recap: () => RecapCommand
+            debug: DebugCommand,
+            start: GameCommand,
+            kill: KillCommand,
+            poll: PollCommand,
+            reset: ResetCommand,
+            time: TimeCommand,
+            recap: RecapCommand
         }
     }
-
-    private static gameMasterCommandList: string[] = [
-        'debug',
-        'start',
-        'kill',
-        'poll',
-        'reset',
-        'time',
-        'recap',
-    ]
-
-    private static inGameCommandList: string[] = ['kill', 'poll', 'time', 'recap']
-
 
     static handle(message: Message|PartialMessage, di: Di): void {
         let args = message.content.split(' ');
@@ -70,25 +62,29 @@ export default class CommandFactory {
             return message.reply('Utilisez la commande *wog help* pour obtenir de l\'aide');
         }
 
-        let guildDb = GameService.initDb(di.db, message.guild.id) as any;
-
-        let gameDb = guildDb.value().game;
-
-        if (gameDb.start) {
-            if (this.isGameMasterRestricted(gameDb, message, stringCommand)) {
-                return message.reply('Seul le MJ peut faire cette commande');
-            }
-        } else if (this.isInGameCommand(stringCommand)) {
-            return message.reply('La partie doit être en cours pour utiliser cette commande');
-        }
-
-        let command = this.commandList()[stringCommand]
+        let command: typeof AbstractCommand = this.list()[stringCommand];
 
         if (!command) {
             return message.reply('Commande inconnue !')
         }
 
-        let response = command().execute(message, args, di)
+        let guildDb = GameService.initDb(di.db, message.guild.id) as any;
+
+        let gameDb = guildDb.value().game;
+
+        if (command.isInGame() !== null) {
+            if (gameDb.start && !command.isInGame()) {
+                return message.reply('Aucune partie ne doit être en cours pour lancer cette commande (wog reset si pas de parties en cours)');
+            } else if (!gameDb.start && command.isInGame()) {
+                return message.reply('La partie doit être en cours pour utiliser cette commande');
+            }
+        }
+
+        if (this.isGameMasterRestricted(gameDb, message, command)) {
+            return message.reply('Seul le MJ peut faire cette commande');
+        }
+
+        let response = command.execute(message, args, di)
 
         if (!response) {
             return Promise.reject('la commande ' + command + ' n\'a pas renvoyé de promise')
@@ -97,11 +93,11 @@ export default class CommandFactory {
         return response.catch(console.error)
     }
 
-    private static isInGameCommand(stringCommand: string): boolean {
-        return this.inGameCommandList.indexOf(stringCommand) !== -1;
-    }
+    private static isGameMasterRestricted(gameDb: any, message: Message | PartialMessage, command: typeof AbstractCommand): boolean {
+        if (!gameDb.masterMemberId) {
+            return false;
+        }
 
-    private static isGameMasterRestricted(gameDb: any, message: Message | PartialMessage, stringCommand: string): boolean {
-        return gameDb.masterMemberId !== message.author.id && this.gameMasterCommandList.indexOf(stringCommand) !== -1;
+        return gameDb.masterMemberId !== message.author.id && command.isGameMasterOnly();
     }
 }

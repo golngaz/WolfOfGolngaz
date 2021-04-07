@@ -1,17 +1,13 @@
 /**
  * Un joueur est un membre composé d'un role
  */
-import {GuildMember, Message, MessageAdditions, MessageOptions, StringResolvable} from "discord.js";
+import {GuildMember, Message, MessageOptions, StringResolvable} from "discord.js";
 
 export default class Player {
     public member: GuildMember;
 
-    private playerDb: any;
-
-    constructor(member: GuildMember, playerDb: any = null) {
-        // @todo enlever le null par défaut
+    constructor(member: GuildMember) {
         this.member = member;
-        this.playerDb = playerDb
     }
 
     is(classKey: string) {
@@ -32,10 +28,10 @@ export default class Player {
     toString(): string {
         let response: string = '';
 
-        response += this.member.toString() + ' - **' + this.label() + '**'
+        response +=  + '**' + this.label() + '**'
 
         if (this.isDead()) {
-            return ['~~', '~~'].join(response);
+            return ['~~', '~~'].join(this.member.toString() + ' - ' + response) + ' :skull:';
         }
 
         return response;

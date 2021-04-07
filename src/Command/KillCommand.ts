@@ -24,6 +24,14 @@ class KillCommand extends AbstractCommand {
     static help() {
         return 'Tue une personne dans le jeu'
     }
+
+    public static isInGame(): boolean {
+        return true;
+    }
+
+    public static isGameMasterOnly(): boolean {
+        return true;
+    }
 }
 
 export = KillCommand;

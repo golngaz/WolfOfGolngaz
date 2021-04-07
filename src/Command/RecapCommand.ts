@@ -28,6 +28,14 @@ class RecapCommand extends AbstractCommand {
     static help() {
         return 'Permet d\'obtenir un résumé de la partie';
     }
+
+    public static isInGame(): boolean {
+        return true;
+    }
+
+    public static isGameMasterOnly(): boolean {
+        return true;
+    }
 }
 
 export = RecapCommand;

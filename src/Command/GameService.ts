@@ -1,7 +1,7 @@
 import Shaman from '../Game/Shaman'
 import Di from '../Di';
 import {Guild, GuildChannel, GuildMember, Message, PartialMessage, Role, TextChannel} from 'discord.js';
-import Lowdb, {LoDashExplicitSyncWrapper, LowdbSync} from "lowdb";
+import {LoDashExplicitSyncWrapper} from "lowdb";
 import PlayerFactory from "../Game/PlayerFactory";
 import Player from "../Game/Player";
 
@@ -138,7 +138,7 @@ export default class GameService {
         return this.guildDb.get('game').value().time === 'night'
     }
 
-    playersDb(role: typeof Player|null = null): Array<any> {
+    private playersDb(role: typeof Player|null = null): Array<any> {
 
         var players = this.guildDb.get('game').value().players;
 
