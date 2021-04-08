@@ -11,6 +11,10 @@ class DebugCommand extends AbstractCommand {
                 .first() as TextChannel
         ).send('_stop')
     }
+
+    public static isGameMasterOnly(): boolean {
+        return true;
+    }
 }
 
 export = DebugCommand;

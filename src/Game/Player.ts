@@ -1,7 +1,7 @@
 /**
  * Un joueur est un membre composé d'un role
  */
-import {GuildMember, Message, MessageAdditions, MessageOptions, StringResolvable} from "discord.js";
+import {GuildMember, Message, MessageOptions, StringResolvable} from "discord.js";
 
 export default class Player {
     public member: GuildMember;
@@ -21,20 +21,27 @@ export default class Player {
         throw new Error('To implement');
     }
 
+    isDead(): boolean {
+        return !!this.member.roles.cache.filter(role => role.name === 'mort').first()
+    }
+
+    toString(): string {
+        let response: string = '';
+
+        response +=  + '**' + this.label() + '**'
+
+        if (this.isDead()) {
+            return ['~~', '~~'].join(this.member.toString() + ' - ' + response) + ' :skull:';
+        }
+
+        return response;
+    }
+
     /**
      * @return {string}
      */
     label(): string {
         throw new Error('To implement');
-    }
-
-    /**
-     * @param {Player} player
-     *
-     * @return {Player}
-     */
-    static fromPlayer(player) {
-        return new this(player.member);
     }
 
     send(message?: StringResolvable, options?: MessageOptions): Promise<Message | Message[]> {

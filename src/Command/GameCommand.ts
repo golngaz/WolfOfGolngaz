@@ -4,7 +4,6 @@ import Player from "../Game/Player.js";
 import NoRole from "../Game/NoRole.js";
 import Werewolf from "../Game/Werewolf.js";
 import SimpleVillager from "../Game/SimpleVillager.js";
-import PlayerFactory from "../Game/PlayerFactory.js";
 import {Guild, Message, PartialMessage, TextChannel, User} from "discord.js";
 import Di from "../Di";
 
@@ -32,6 +31,8 @@ class GameCommand extends AbstractCommand {
         this.guild = guild;
         this.gameMaster = author;
         this.db = db;
+
+        // @todo supprimer
         this.guildDb = GameService.initDb(this.db, this.guild.id);
         this.gameService = gameService
 
@@ -80,14 +81,14 @@ class GameCommand extends AbstractCommand {
         this.roleMap.forEach((roleClass: typeof Player) => {
             let randomPlayer = players.splice(Math.floor(Math.random() * players.length), 1)[0];
 
-            this.players.push(roleClass.fromPlayer(randomPlayer));
+            this.players.push(new roleClass(randomPlayer.member));
         });
 
         await this._notifyPlayersRole();
 
         this._saveGame();
 
-        this._removeDeathRole();
+        this.removeDeathRole();
 
         return this.initWolfChannel(this.players.filter(player => player.is(Werewolf.key())))
             .then(() => this.gameChannel.send('Le jeu commence avec les roles ' + this.displayRoles()));
@@ -165,12 +166,12 @@ class GameCommand extends AbstractCommand {
         return true;
     }
 
-    /**
-     * @return {boolean}
-     */
-    offlinePlayers() {
-        return this.players.filter(player => player.member.presence.status === 'offline');
-    }
+    // /**
+    //  * @return {boolean}
+    //  */
+    // offlinePlayers() {
+    //     return this.players.filter(player => player.member.presence.status === 'offline');
+    // }
 
     /**
      * @return {boolean}
@@ -188,14 +189,12 @@ class GameCommand extends AbstractCommand {
     }
 
     /**
-     * @param {Player=} player
+     * Supprime le role mort d'un joueur si précisé ou tous les joueurs
      */
-    _removeDeathRole(player?: Player) {
-        var deathRole = this.guild.roles.cache.filter(role => role.name === 'mort').first();
-
+    private removeDeathRole(player?: Player) {
         var players = player ? [player] : this.players.filter(player => player.member.roles.cache.some(role => role.name === 'mort'));
 
-        players.forEach(player => player.member.roles.remove(deathRole));
+        players.forEach(player => player.member.roles.remove(this.gameService.role('mort')));
     }
 
     /**

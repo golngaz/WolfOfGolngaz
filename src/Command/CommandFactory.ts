@@ -13,28 +13,32 @@ import LeaveCommand from "./LeaveCommand";
 import ListCommand from "./ListCommand";
 import RolesCommand from "./RolesCommand";
 import ConfigCommand from "./Config/ConfigCommand";
+import RecapCommand from "./RecapCommand";
+import AbstractCommand from "./AbstractCommand";
+
+interface Mapping {
+    [key: string]: typeof AbstractCommand
+}
 
 export default class CommandFactory {
 
-    static gameMasterCommandList(): any {
+    public static list(): Mapping {
         return {
-            debug: () => DebugCommand,
-            start: () => GameCommand,
-            kill: () => KillCommand,
-            poll: () => PollCommand,
-            reset: () => ResetCommand,
-            time: () => TimeCommand,
-        }
-    }
+            help: HelpCommand,
+            join: JoinCommand,
+            leave: LeaveCommand,
+            list: ListCommand,
+            roles: RolesCommand,
+            config: ConfigCommand,
 
-    static freeCommandList(): any {
-        return {
-            help: () => HelpCommand,
-            join: () => JoinCommand,
-            leave: () => LeaveCommand,
-            list: () => ListCommand,
-            roles: () => RolesCommand,
-            config: () => ConfigCommand,
+            // mj
+            debug: DebugCommand,
+            start: GameCommand,
+            kill: KillCommand,
+            poll: PollCommand,
+            reset: ResetCommand,
+            time: TimeCommand,
+            recap: RecapCommand
         }
     }
 
@@ -58,27 +62,42 @@ export default class CommandFactory {
             return message.reply('Utilisez la commande *wog help* pour obtenir de l\'aide');
         }
 
-        if (!Object.keys(this.gameMasterCommandList()).indexOf(stringCommand)) {
-            if (message.author.username !== 'golngaz' || message.author.discriminator !== '8508') {
-                return message.reply('Vous n\'êtes pas autorisé à faire de commande !')
-            }
-        }
-
-        let command = this.gameMasterCommandList()[stringCommand];
-
-        command = command || this.freeCommandList()[stringCommand]
+        let command: typeof AbstractCommand = this.list()[stringCommand];
 
         if (!command) {
             return message.reply('Commande inconnue !')
         }
 
-        GameService.initDb(di.db, message.guild.id)
+        let guildDb = GameService.initDb(di.db, message.guild.id) as any;
 
-        let response = command().execute(message, args, di)
+        let gameDb = guildDb.value().game;
+
+        if (command.isInGame() !== null) {
+            if (gameDb.start && !command.isInGame()) {
+                return message.reply('Aucune partie ne doit être en cours pour lancer cette commande (wog reset si pas de parties en cours)');
+            } else if (!gameDb.start && command.isInGame()) {
+                return message.reply('La partie doit être en cours pour utiliser cette commande');
+            }
+        }
+
+        if (this.isGameMasterRestricted(gameDb, message, command)) {
+            return message.reply('Seul le MJ peut faire cette commande');
+        }
+
+        let response = command.execute(message, args, di)
+
         if (!response) {
             return Promise.reject('la commande ' + command + ' n\'a pas renvoyé de promise')
         }
 
         return response.catch(console.error)
+    }
+
+    private static isGameMasterRestricted(gameDb: any, message: Message | PartialMessage, command: typeof AbstractCommand): boolean {
+        if (!gameDb.masterMemberId) {
+            return false;
+        }
+
+        return gameDb.masterMemberId !== message.author.id && command.isGameMasterOnly();
     }
 }

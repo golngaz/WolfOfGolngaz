@@ -35,6 +35,14 @@ class PollCommand extends AbstractCommand {
     static help() {
         return 'Génère un vote de villageois sur tous les villageois vivant';
     }
+
+    public static isInGame(): boolean {
+        return true;
+    }
+
+    public static isGameMasterOnly(): boolean {
+        return true;
+    }
 }
 
 export = PollCommand;

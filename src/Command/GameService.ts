@@ -1,7 +1,7 @@
 import Shaman from '../Game/Shaman'
 import Di from '../Di';
-import {Guild, GuildChannel, GuildMember, Message, PartialMessage, TextChannel} from 'discord.js';
-import Lowdb, {LoDashExplicitSyncWrapper, LowdbSync} from "lowdb";
+import {Guild, GuildChannel, GuildMember, Message, PartialMessage, Role, TextChannel} from 'discord.js';
+import {LoDashExplicitSyncWrapper} from "lowdb";
 import PlayerFactory from "../Game/PlayerFactory";
 import Player from "../Game/Player";
 
@@ -13,21 +13,20 @@ export default class GameService {
     constructor(di: Di, guild: Guild) {
         this.guild = guild
         this.db = di.db
-        this.guildDb = GameService.initDb(this.db, guild.id)
+        this.guildDb = GameService.initDb(this.db, this.guild.id)
     }
 
     end(): Promise<GuildChannel[]> {
         // @todo calculer la fin de la partie à chaque mort sur la commande kill ou night ?
-        let node = this.db.get('guilds').find({id: this.guild.id})
 
-        node.value().game = {
+        this.guildDb.value().game = {
             active: false,
             time: 'night',
             masterMemberId: '',
             players: [],
         }
 
-        node.write()
+        this.guildDb.write()
 
         return this.resetWolfChannel()
     }
@@ -39,7 +38,7 @@ export default class GameService {
     }
 
     initConfig() {
-        let node = this.db.get('guilds').find({id: this.guild.id})
+        let node = this.guildDb
 
         node.value().game = {
             active: false,
@@ -109,6 +108,7 @@ export default class GameService {
             game: {
                 active: false,
                 time: 'night',
+                // @todo renommer en masterUserId
                 masterMemberId: '',
                 players: [],
             },
@@ -138,29 +138,72 @@ export default class GameService {
         return this.guildDb.get('game').value().time === 'night'
     }
 
+    private playersDb(role: typeof Player|null = null): Array<any> {
+
+        var players = this.guildDb.get('game').value().players;
+
+        if (role !== null) {
+            return players.filter(player => player.roleKey === role.key());
+        }
+
+        return players;
+    }
+
+    /**
+     * return member of the role. If many members of this role, will return the index member
+     */
+    memberFromRole(role: typeof Player, index: number = 0): GuildMember | null {
+        let players = this.playersDb(role);
+
+        if (players.length === 0) {
+            return null;
+        }
+
+        let player = players[index];
+
+        return this.guild.members.cache
+            .filter(member => member.id === player.memberId)
+            .first()
+        ;
+    }
+
+    /**
+     * @todo faire un listener
+     */
     handleMessage(message) {
         if (message.channel.name !== 'cimetière' || this.isDay()) {
             return
         }
 
         // @todo parcourir les joueurs et exécuter le code contenu dans les classe du rôle
-        let shaman = this.guildDb.get('game').value().players.filter(player => player.roleKey === Shaman.key())[0]
-        if (shaman) {
-            let memberShaman = message.guild.members.cache
-                .filter(member => member.id === shaman.memberId)
-                .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
-                .filter(member => !member.roles.cache.some(role => role.name === 'mort'))
-                .first()
-
-            if (memberShaman) {
-                return memberShaman
-                    .send('Mort : "*' + message.content + '*"')
-            }
-        }
+        return this.memberFromRole(Shaman)?.send('Mort : "*' + message.content + '*"')
     }
 
+    /**
+     * Retourne la liste des roles présents dans la config
+     */
     roleMap(): Array<typeof Player> {
         return this.guildDb.get('config.roles').value().map((key: string) => PlayerFactory.mapping()[key])
+    }
+
+    players(): Array<Player> {
+        return this.playersDb()
+            .map((player: any) => {
+                let member: GuildMember = this.guild.members.cache.filter(member => member.id === player.memberId).first();
+
+                return {player: player, member: member};
+
+            })
+            .map((value: { member: GuildMember; player: any }) => {
+                let playerRole: typeof Player = PlayerFactory.mapping()[value.player.roleKey];
+
+                return new playerRole(value.member)
+            })
+        ;
+    }
+
+    role(roleKey: 'mort'|'jeu'|'maire'): Role {
+        return this.guild.roles.cache.filter(role => role.name === roleKey).first()
     }
 
     async resetWolfChannel(): Promise<GuildChannel[]> {
@@ -180,7 +223,7 @@ export default class GameService {
      * Return list id of joins players user id
      */
     joins(): Array<string> {
-        let joins = this.db.get('guilds').find({id: this.guild.id}).get('config.joins').value();
+        let joins = this.guildDb.get('config.joins').value();
 
         if (!joins || joins.length === 0) {
             return [];
@@ -190,7 +233,7 @@ export default class GameService {
     }
 
     resetJoins() {
-        let nodeConfig = this.db.get('guilds').find({id: this.guild.id}).get('config');
+        let nodeConfig = this.guildDb.get('config');
 
         nodeConfig.value().joins = [];
 
@@ -200,7 +243,7 @@ export default class GameService {
     leave(member: GuildMember): Promise<void|GuildMember> {
         let gameRole = member.guild.roles.cache.filter(role => role.name === 'jeu').first()
 
-        let nodeConfig = this.db.get('guilds').find({id: this.guild.id}).get('config');
+        let nodeConfig = this.guildDb.get('config');
         nodeConfig.value().joins = nodeConfig.value().joins.filter(id => id !== member.user.id)
         nodeConfig.write()
 

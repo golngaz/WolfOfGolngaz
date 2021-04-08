@@ -1,5 +1,5 @@
 import AbstractCommand from "./AbstractCommand";
-import {GuildMember, Message, PartialMessage, TextChannel} from "discord.js";
+import {Message, PartialMessage, TextChannel} from "discord.js";
 import Di from "../Di";
 import config from '../../config.json';
 import GameService from "./GameService";
@@ -77,6 +77,14 @@ class TimeCommand extends AbstractCommand {
 
     static help() {
         return 'Gère la journée pendant la partie';
+    }
+
+    public static isInGame(): boolean {
+        return true;
+    }
+
+    public static isGameMasterOnly(): boolean {
+        return true;
     }
 }
 
