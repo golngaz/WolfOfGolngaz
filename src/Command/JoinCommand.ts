@@ -28,6 +28,10 @@ class JoinCommand extends AbstractCommand {
     static help() {
         return 'Permet de rejoindre la prochaine partie';
     }
+
+    public static isInGame(): boolean | null {
+        return false;
+    }
 }
 
 export = JoinCommand;

@@ -219,6 +219,10 @@ class GameCommand extends AbstractCommand {
             .then(() => this.wolfChannel.send('Vous êtes des loups, vous devez manger des gens la nuit ! Interdiction d\'utiliser ce canal la nuit (le mj surveille !!)'))
             ;
     }
+
+    public static isInGame(): boolean | null {
+        return false;
+    }
 }
 
 export = GameCommand;

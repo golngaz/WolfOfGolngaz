@@ -26,7 +26,23 @@ class HelpCommand extends AbstractCommand {
 
     static _list(message) {
         let list: string = Object.keys(CommandFactory.list())
-            .map(key => key + ' ' + CommandFactory.list()[key].signature())
+            .map(key => {
+                let command = CommandFactory.list()[key];
+
+                let line = [];
+
+                if (command.isInGame() === null) {
+                    line.push('      ');
+                } else {
+                    line.push(command.isInGame() ? ':video_game:' : ':bricks:');
+                }
+
+                line.push(command.isGameMasterOnly() ? ':crown:' : '      ');
+                line.push(key);
+                line.push(command.signature() ? '**' + command.signature() + '**' : '');
+
+                return line.join(' ')
+            })
             .join('\n')
 
         return message.channel.send('Liste des commandes : \n' + list)

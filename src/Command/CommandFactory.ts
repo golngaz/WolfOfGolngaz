@@ -73,9 +73,9 @@ export default class CommandFactory {
         let gameDb = guildDb.value().game;
 
         if (command.isInGame() !== null) {
-            if (gameDb.start && !command.isInGame()) {
+            if (gameDb.active && !command.isInGame()) {
                 return message.reply('Aucune partie ne doit être en cours pour lancer cette commande (wog reset si pas de parties en cours)');
-            } else if (!gameDb.start && command.isInGame()) {
+            } else if (!gameDb.active && command.isInGame()) {
                 return message.reply('La partie doit être en cours pour utiliser cette commande');
             }
         }

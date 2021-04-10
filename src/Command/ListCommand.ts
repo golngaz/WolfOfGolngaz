@@ -1,6 +1,5 @@
 import AbstractCommand from "./AbstractCommand";
 import GameService from "./GameService";
-import Player from "../Game/Player";
 
 class ListCommand extends AbstractCommand {
     /**
@@ -9,7 +8,7 @@ class ListCommand extends AbstractCommand {
      * @param {Di} di
      */
     static execute(message, args, di) {
-        message.reply(di.get(GameService).roleMap().map((role: typeof Player) => role.key()).join(', '));
+        message.reply(di.get(GameService).roleMap().map(role => (new role).label()).join(', '));
 
         return Promise.resolve();
     }

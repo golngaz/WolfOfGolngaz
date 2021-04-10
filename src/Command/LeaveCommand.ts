@@ -13,6 +13,10 @@ class LeaveCommand extends AbstractCommand {
     static help() {
         return 'Permet de ne pas rejoindre la prochaine partie';
     }
+
+    public static isInGame(): boolean | null {
+        return false;
+    }
 }
 
 export = LeaveCommand;

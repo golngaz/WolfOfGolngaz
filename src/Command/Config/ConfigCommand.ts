@@ -25,4 +25,8 @@ export default class ConfigCommand extends AbstractCommand {
     static help() {
         return 'Permet de gérer la configuration d\'une partie'
     }
+
+    public static isInGame(): boolean | null {
+        return false;
+    }
 }
