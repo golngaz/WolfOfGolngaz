@@ -265,5 +265,7 @@ export default class GameService {
                 console.error(error);
             })
         ;
+
+        await this.guild.members.cache.forEach(member => member.fetch())
     }
 }

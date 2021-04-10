@@ -43,8 +43,6 @@ class GameCommand extends AbstractCommand {
 
         this.wolfChannel = this.gameService.wolfChannel();
 
-        this.guild.members.cache.forEach(member => member.fetch())
-
         this.players = this.guild.members.cache
             .filter(member => member.roles.cache.some(role => role.name === 'jeu'))
             .map(member => new NoRole(member))
@@ -218,7 +216,7 @@ class GameCommand extends AbstractCommand {
         });
 
         return Promise.all(addPermissions)
-            .then(() => this.wolfChannel.send('Vous êtes des loups, vous devez manger des gens la nuit ! Interdiction d\'utiliser ce canal la nuit (le mj surveille !!)'))
+            .then(() => this.wolfChannel.send('Vous êtes des loups, vous devez manger des gens de jour ! Interdiction d\'utiliser ce canal la nuit (le mj surveille !!)'))
             ;
     }
 
