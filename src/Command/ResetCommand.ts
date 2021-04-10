@@ -49,10 +49,6 @@ class ResetCommand extends AbstractCommand {
             'soft -> n\'enlève pas les joueurs de la prochaine partie\n' +
             'config -> réinitialise la configuration de la partie'
     }
-
-    public static isGameMasterOnly(): boolean {
-        return true;
-    }
 }
 
 export = ResetCommand;
