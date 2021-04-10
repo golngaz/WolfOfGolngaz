@@ -28,7 +28,7 @@ export default class Player {
     toString(): string {
         let response: string = '';
 
-        response +=  + '**' + this.label() + '**'
+        response += '**' + this.label() + '**'
 
         if (this.isDead()) {
             return ['~~', '~~'].join(this.member.toString() + ' - ' + response) + ' :skull:';

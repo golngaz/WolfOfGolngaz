@@ -56,7 +56,7 @@ class GameCommand extends AbstractCommand {
             return Promise.reject();
         }
 
-        di.get(GameService).fetch()
+        await di.get(GameService).fetch()
 
         let game = new this(message, message.guild, message.author, di.db, di.get(GameService));
 
