@@ -37,7 +37,7 @@ class RecapCommand extends AbstractCommand {
     }
 
     public static isGameMasterOnly(): boolean {
-        return true;
+        return false
     }
 }
 
