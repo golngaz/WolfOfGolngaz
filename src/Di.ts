@@ -4,6 +4,7 @@ import GameService from './Command/GameService.js'
 import ConfigRoleService from './Command/Config/ConfigRoleService.js'
 import { Guild } from 'discord.js';
 import FileSync from "lowdb/adapters/FileSync";
+import PollService from "./Poll/PollService";
 
 interface Constructor<T> {
     new (...args: any[]): T
@@ -36,6 +37,7 @@ class Di {
         this.set(ResetService, (di: Di) => new ResetService(new GameService(di, this.guild)));
         this.set(GameService, (di: Di) => new GameService(di, this.guild));
         this.set(ConfigRoleService, (di: Di) => new ConfigRoleService(di, this.guild));
+        this.set(PollService, (di: Di) => new PollService(di, this.guild));
     }
 
     set<T>(service: Constructor<T>, factory: (di: Di, ...args: any[]) => T): void {
